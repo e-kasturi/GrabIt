@@ -1,79 +1,76 @@
 const Login = () => {
   return (
- 
-      <div>
-          <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
-            <div className="max-w-md w-full">
-              <div className="p-8 rounded-l bg-[#E4FBFF] shadow-md">
-                <h2 className="text-gray-800 text-center text-2xl font-bold">
-                  Login
-                </h2>
-                <form className="mt-8 space-y-4">
-                  <div>
-                    <label className="text-gray-800 text-sm mb-2 block">
-                      Email
-                    </label>
-                    <div className="relative flex items-center">
-                      <input
-                        name="email"
-                        type="text"
-                        required=""
-                        className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
-                        placeholder="Enter user name"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-gray-800 text-sm mb-2 block">
-                      Password
-                    </label>
-                    <div className="relative flex items-center">
-                      <input
-                        name="password"
-                        type="password"
-                        required=""
-                        className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
-                        placeholder="Enter password"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-center !mt-8">
-                    <button
-                      type="button"
-                      className="w-80 py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-[#04A8C1] hover:bg-[#02A8b1] focus:outline-none"
-                    >
-                      Login
-                    </button>
-                  </div>
-                  <div className="my-4 flex items-center gap-4">
-                    <hr className="w-full border-gray-300" />
-                    <p className="text-sm text-gray-800 text-center">or</p>
-                    <hr className="w-full border-gray-300" />
-                  </div>
-                  <div className="flex justify-center !mt-8">
-                    <button
-                      type="button"
-                      className=" w-80 py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-[#04A8C1] hover:bg-[#02A8b1] focus:outline-none"
-                    >
-                      Google
-                    </button>
-                  </div>
-                  <p className="text-gray-500 text-sm text-center">
-                    Don't have an account?
-                    <a
-                      href="javascript:void(0);"
-                      className="text-[#04A8C1]  hover:underline ml-1 whitespace-nowrap font-semibold"
-                    >
-                      Register
-                    </a>
-                  </p>
-                </form>
+    <div>
+      <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
+        <div className="max-w-md w-full">
+          <div className="p-8 rounded-l bg-[#E4FBFF] shadow-md">
+            <h2 className="text-gray-800 text-center text-2xl font-bold">
+              Login
+            </h2>
+            <form className="mt-8 space-y-4">
+              <div>
+                <label className="text-gray-800 text-sm mb-2 block">
+                  Email
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    name="email"
+                    type="text"
+                    required=""
+                    className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                    placeholder="Enter user name"
+                  />
+                </div>
               </div>
-            </div>
+              <div>
+                <label className="text-gray-800 text-sm mb-2 block">
+                  Password
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    name="password"
+                    type="password"
+                    required=""
+                    className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                    placeholder="Enter password"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-center !mt-8">
+                <button
+                  type="button"
+                  className="w-80 py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-[#04A8C1] hover:bg-[#00869A] focus:outline-none"
+                >
+                  Login
+                </button>
+              </div>
+              <div className="my-4 flex items-center gap-4">
+                <hr className="w-full border-gray-300" />
+                <p className="text-sm text-gray-800 text-center">or</p>
+                <hr className="w-full border-gray-300" />
+              </div>
+              <div className="flex justify-center !mt-8">
+                <button
+                  type="button"
+                  className=" w-80 py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-[#04A8C1] hover:bg-[#00869A] focus:outline-none"
+                >
+                  Google
+                </button>
+              </div>
+              <p className="text-gray-500 text-sm text-center">
+                Don't have an account?
+                <a
+                  href="javascript:void(0);"
+                  className="text-[#04A8C1]  hover:underline ml-1 whitespace-nowrap font-semibold"
+                >
+                  Register
+                </a>
+              </p>
+            </form>
           </div>
         </div>
-  
-
+      </div>
+    </div>
   );
 };
 export default Login;
