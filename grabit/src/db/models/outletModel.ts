@@ -38,32 +38,31 @@ class OutletModel {
         return this.collection().findOne({ email })
     }
 
-    static async findAll(){
+    static async findAll() {
         const agg = [
-            {
-                $project: {
-                    password: 0
-                }
-            }
-        ]
-        return this.collection().aggregate(agg).toArray()
-    }
-
-    static async findById(id: string){
-        const agg = [
-            {
-                $match: {
-                    _id: new ObjectId(id),
-                },
+          {
+            $project: {
+              password: 0,
             },
-            {
-                $project: {
-                    password: 0,
-                },
-            },
+          },
         ];
-        return this.collection().aggregate(agg).toArray()
-    }
-}
+        return this.collection().aggregate(agg).toArray();
+      }
 
+   static async findById(id: string) {
+    const agg = [
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $project: {
+          password: 0,
+        },
+      },
+    ];
+    return this.collection().aggregate(agg).toArray();
+  }
+}
 export default OutletModel;
