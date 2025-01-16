@@ -3,6 +3,8 @@ import { database } from "../config/config";
 import { customerType } from "@/type";
 import { ObjectId } from "mongodb";
 import { hashPass } from "@/helpers/bcrypt";
+import path from "path";
+import { emitWarning } from "process";
 
 const customerSchema = z.object({
     name: z.string().min(3, { message: "Name is required."}).max(50),
@@ -79,9 +81,47 @@ class CustomerModel {
                     path: "$transactionDetail",
                     preserveNullAndEmptyArrays: true,
                 }
+            },
+            {
+                $unwind: {
+                    path: "$productDetail",
+                    preserveNullAndEmptyArrays: true,
+                }
             }
         ]
         return this.collection().aggregate(agg).toArray()
+    }
+
+    static async updateProfile(customerId: string, updateData: customerType){
+        const updateSchema = z.object({
+            name: z.string().min(3).max(50).optional(),
+            email: z.string().email().optional(),
+            address: z.string().min(1).optional(),
+            phone: z
+            .string()
+            .regex(/^\+?\d{10,14}$/).optional(),
+            latitude: z.number().optional(),
+            longitude: z.number().optional(),
+        })
+
+        const validData = updateSchema.parse(updateData)
+        
+        const customer = await this.collection().findOne({
+_id: new ObjectId(customerId),
+        })
+        if (!customer) {
+            throw new Error("customer not found")
+        }
+        const updateResult = await this.collection().updateOne({
+            _id: new ObjectId(customerId)
+        }, { $set: validData})
+
+        if(updateResult.modifiedCount === 0){
+            throw new Error("Failed to update profile")
+        }
+        return this.collection().findOne({
+            _id: new ObjectId(customerId)
+        })
     }
 }
 
