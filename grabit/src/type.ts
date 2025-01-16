@@ -72,3 +72,4 @@ export type updateTransactionType = {
     productId: string
     quantity: number
 }
+

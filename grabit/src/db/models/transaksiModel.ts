@@ -3,7 +3,6 @@ import { client, database } from "../config/config";
 import { z } from "zod"
 import ProductModel from "./produkModel";
 import { transactionType, updateTransactionType } from "@/type";
-import { time } from "console";
 
 export const transactionDetailSchema = z.object({
  name: z.string(),
@@ -94,7 +93,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "transactionDetails",
             localField: "_id",
-            foreingField: "transactionId",
+            foreignField: "transactionId",
             as: "products",
           }
         },
@@ -102,15 +101,16 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "products",
             localField: "products.productId",
-            foreingField: "_id",
+            foreignField: "_id",
             as: "productDetail",
           }
         },
+        
         {
           $lookup: {
             from: "customer",
             localField: "customerId",
-            foreingField: "_id",
+            foreignField: "_id",
             as: "customerDetail",
           }
         }
@@ -129,7 +129,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "transactionDetails",
             localField: "_id",
-            foreingField: "transactionId",
+            foreignField: "transactionId",
             as: "products",
           }
         },
@@ -137,7 +137,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "products",
             localField: "products.productId",
-            foreingField: "_id",
+            foreignField: "_id",
             as: "productDetail",
           }
         },
@@ -145,7 +145,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "outlets",
             localField: "outletId",
-            foreingField: "_id",
+            foreignField: "_id",
             as: "outletDetail",
           }
         }
@@ -164,7 +164,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "transactionDetails",
             localField: "_id",
-            foreingField: "transactionId",
+            foreignField: "transactionId",
             as: "products",
           }
         },
@@ -172,7 +172,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "products",
             localField: "products.productId",
-            foreingField: "_id",
+            foreignField: "_id",
             as: "productDetail",
           }
         },
@@ -180,7 +180,7 @@ export const transactionDetailSchema = z.object({
           $lookup: {
             from: "outlets",
             localField: "outletId",
-            foreingField: "_id",
+            foreignField: "_id",
             as: "outletDetail",
           }
         },
@@ -221,7 +221,7 @@ export const transactionDetailSchema = z.object({
         const transaction = await this.collection().findOne({
           _id: new ObjectId(id)
         })
-        console.log((transaction, "transaksi"));
+       // console.log((transaction, "transaksi"));
         
         for (const product of products) {
           const productDetail = await ProductModel.findById(product.productId)
@@ -245,7 +245,7 @@ export const transactionDetailSchema = z.object({
             },
             { session }
           )
-          console.log((detailTrans, "detail transaksi"));
+         // console.log((detailTrans, "detail transaksi"));
         }
 
         const updateTransaction = await this.collection().updateOne(
@@ -284,6 +284,197 @@ export const transactionDetailSchema = z.object({
     static async deleteTransaction(id: string){
       return this.collection().deleteOne({ _id: new ObjectId(id)})
     }
+
+    static async reportDaily(outletId: string, date: Date) {
+      console.log(date, "<<<<< date");
+      console.log(outletId, "<<<<< outletId");
+      console.log(this.formatedDate(date), "<<<<< formatedDate");
+      const agg = [
+        {
+          $match: {
+            outletId: new ObjectId(outletId),
+  
+            transactionDate: this.formatedDate(date),
+          },
+        },
+        {
+          $lookup: {
+            from: "transactionDetails",
+            localField: "_id",
+            foreignField: "transactionId",
+            as: "products",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "products.productId",
+            foreignField: "_id",
+            as: "productDetail",
+          },
+        },
+        {
+          $project: {
+            services: 0,
+          },
+        },
+      ];
+  
+      return this.collection().aggregate(agg).toArray();
+    }
+
+    static async reportWeekly(outletId: string, startDate: Date, endDate: Date) {
+      const agg = [
+        {
+          $match: {
+            outletId: new ObjectId(outletId),
+  
+            transactionDate: {
+              $gte: this.formatedDate(startDate),
+              $lte: this.formatedDate(endDate),
+            }
+          },
+        },
+        {
+          $lookup: {
+            from: "transactionDetails",
+            localField: "_id",
+            foreignField: "transactionId",
+            as: "products",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "products.productId",
+            foreignField: "_id",
+            as: "productDetail",
+          },
+        },
+        {
+          $project: {
+            services: 0,
+          },
+        },
+      ];
+  
+      return this.collection().aggregate(agg).toArray();
+    }
+
+    static async reportMonthly(outletId: string, startDate: Date, endDate: Date) {
+      const agg = [
+        {
+          $match: {
+            outletId: new ObjectId(outletId),
+  
+            transactionDate: {
+              $gte: this.formatedDate(startDate),
+              $lte: this.formatedDate(endDate),
+            }
+          },
+        },
+        {
+          $lookup: {
+            from: "transactionDetails",
+            localField: "_id",
+            foreignField: "transactionId",
+            as: "products",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "products.productId",
+            foreignField: "_id",
+            as: "productDetail",
+          },
+        },
+        {
+          $project: {
+            services: 0,
+          },
+        },
+      ];
+  
+      return this.collection().aggregate(agg).toArray();
+    }
+
+    static async reportYearly(outletId: string, startDate: Date, endDate: Date) {
+      const agg = [
+        {
+          $match: {
+            outletId: new ObjectId(outletId),
+  
+            transactionDate: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            }
+          },
+        },
+        {
+          $lookup: {
+            from: "transactionDetails",
+            localField: "_id",
+            foreignField: "transactionId",
+            as: "products",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "products.productId",
+            foreignField: "_id",
+            as: "productDetail",
+          },
+        },
+        {
+          $project: {
+            services: 0,
+          },
+        },
+      ];
+  
+      return this.collection().aggregate(agg).toArray();
+    }
+
+    static async reportCustom(outletId: string, startDate: Date, endDate: Date) {
+      const agg = [
+        {
+          $match: {
+            outletId: new ObjectId(outletId),
+  
+            transactionDate: {
+              $gte: this.formatedDate(startDate),
+              $lte: this.formatedDate(endDate),
+            }
+          },
+        },
+        {
+          $lookup: {
+            from: "transactionDetails",
+            localField: "_id",
+            foreignField: "transactionId",
+            as: "products",
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "products.productId",
+            foreignField: "_id",
+            as: "productDetail",
+          },
+        },
+        {
+          $project: {
+            services: 0,
+          },
+        },
+      ];
+  
+      return this.collection().aggregate(agg).toArray();
+    }
+
   }
 
   export default TransactionModel
