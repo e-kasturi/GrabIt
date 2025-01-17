@@ -1,6 +1,6 @@
 import OutletModel from "@/db/models/outletModel"
 import ProductModel from "@/db/models/produkModel"
-import { produkType } from "@/type"
+import { productType } from "@/type"
 import { ObjectId } from "mongodb"
 
 export async function POST(request: Request) {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request){
     const outletId = request.headers.get("x-user-id") as string
-    const produk: produkType[] = await ProductModel.findByOutletId(outletId)
+    const produk: productType[] = await ProductModel.findByOutletId(outletId)
 
     return Response.json(produk)
 }

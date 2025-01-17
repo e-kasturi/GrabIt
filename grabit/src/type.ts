@@ -24,7 +24,7 @@ export type customerType = {
     role: string
 }
 
-export type produkType = {
+export type productType = {
  _id?: ObjectId
  name: string
  slug: string
@@ -43,6 +43,10 @@ export type produkType = {
  }
 }
 
+export type product = {
+    productId: string
+}
+
 export type transactionType = {
     _id?: string
     outletId: string
@@ -51,6 +55,8 @@ export type transactionType = {
     totalAmount: number
     status: string
     customerDetail?: customerType[]
+    productDetail?: productType[]
+    products?: { productId: string; quantity: number }[]
 }
 
 export type transaction = {
@@ -61,3 +67,9 @@ export type transaction = {
     status: string
     updateStatus: string
 }
+
+export type updateTransactionType = {
+    productId: string
+    quantity: number
+}
+
