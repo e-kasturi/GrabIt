@@ -47,7 +47,6 @@ export default function LoginScreen() {
     console.log(baseUrl, "baseUrl");
     try {
       const response = await fetch(
-        // "https://d9c8-2a09-bac5-3a48-25b9-00-3c2-d.ngrok-free.app/api/login",
         `${baseUrl}/api/login`,
         {
           method: "POST",
@@ -64,7 +63,6 @@ export default function LoginScreen() {
           }),
         }
       );
-      // console.log(response, "response");
 
       const data = await response.json();
       console.log(data, "data");
@@ -73,7 +71,7 @@ export default function LoginScreen() {
         Alert.alert("Success", "You have logged in successfully!");
         Keyboard.dismiss();
         setIsSignedIn(true);
-        // navigation.navigate("Home");
+
         await SecureStore.setItemAsync("access_token", data.access_token, data);
       } else {
         Alert.alert("Error", data.message || "Invalid login credentials!");
@@ -89,7 +87,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Image source={require("../assets/logo.jpg")} style={styles.image} />
       <View>
-        <Text style={styles.title}>CuanClean</Text>
+        <Text style={styles.title}>GrabIt</Text>
       </View>
       <View style={styles.form}>
         <TextInput

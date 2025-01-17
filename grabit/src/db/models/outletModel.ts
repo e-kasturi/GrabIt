@@ -1,57 +1,56 @@
-import { hashPass } from "@/helpers/bcrypt";
-import { outletType } from "@/type";
 import { z } from "zod";
 import { database } from "../config/config";
+import { outletType } from "@/type";
+import { hashPass } from "@/helpers/bcrypt";
 import { ObjectId } from "mongodb";
 
 const outletSchema = z.object({
-  name: z.string().nonempty("Name is required"),
-  namaOutlet: z.string().nonempty("Outlet name is required"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(5, "Password must be at least 5 characters"),
+  name: z.string().min(1, "Name is required."),
+  nameOutlet: z.string(),
+  address: z.string().min(1, "Address is required."),
   phone: z
     .string()
-    .regex(/^\d{10,14}$/, "Invalid phone number")
-    .nonempty("Phone number is required"),
-  address: z.string().nonempty("Address is required"),
+    .regex(/^\+?\d{10,15}$/, "Phone must be a valid phone number."),
+  email: z.string().email("Email must be a valid email address."),
+  password: z.string().min(5, "Password must be at least 8 characters long."),
 });
 
-
 class OutletModel {
- static collection() {
+  static collection() {
     return database.collection<outletType>("outlets");
- }
-    static async create(outlet: outletType) {
-        outletSchema.parse(outlet)
+  }
 
-        const exsistOutlet = await this.collection().findOne({
-            email: outlet.email,
-        })
-        if (exsistOutlet) {
-            throw new Error("Outlet with this email already exists")
-        }
+  static async create(outlet: outletType) {
+    outletSchema.parse(outlet);
 
-        outlet.password = hashPass(outlet.password)
-
-        return this.collection().insertOne(outlet)
+    const existOutlet = await this.collection().findOne({
+      email: outlet.email,
+    });
+    if (existOutlet) {
+      throw new Error("Outlet with this email already exists");
     }
 
-    static async findByEmail(email: string) {
-        return this.collection().findOne({ email })
-    }
+    outlet.password = hashPass(outlet.password);
 
-    static async findAll() {
-        const agg = [
-          {
-            $project: {
-              password: 0,
-            },
-          },
-        ];
-        return this.collection().aggregate(agg).toArray();
-      }
+    return this.collection().insertOne(outlet);
+  }
 
-   static async findById(id: string) {
+  static async findByEmail(email: string) {
+    return this.collection().findOne({ email });
+  };
+
+  static async findAll() {
+    const agg = [
+      {
+        $project: {
+          password: 0,
+        },
+      },
+    ];
+    return this.collection().aggregate(agg).toArray();
+  }
+
+  static async findById(id: string) {
     const agg = [
       {
         $match: {

@@ -1,58 +1,61 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 export default function Register() {
-
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [latitude, setLatitude] = useState<number>(-6.2);
   const [longitude, setLongitude] = useState<number>(106.816666);
-
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
+
+    const formData = new FormData(e.currentTarget);
+
+    const rawFormData = {
+      name: formData.get("name"),
+      namaOutlet: formData.get("namaOutlet"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      phone: formData.get("phone"),
+      address: formData.get("address"),
+      latitude,
+      longitude,
+      role: "admin",
+    };
+
     try {
-      const formData = new FormData(e.currentTarget);
-      const data = {
-        name: formData.get("name"),
-        namaOutlet: formData.get("namaOutlet"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-        phone: formData.get("phone"),
-        address: formData.get("address"),
-        latitude,
-        longitude,
-      };
-  
-    
-  
-      setLoading(true);
-      setErrorMessage("");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, role: "admin" }),
-      });
-  
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rawFormData),
+        }
+      );
+
       const response = await res.json();
+
       if (!res.ok) {
         throw new Error(response.message || "Failed to register.");
       }
-  
-      alert("Registration successful!");
+
+      alert("Registrasi berhasil!");
       router.push("/login");
     } catch (error: any) {
-      setErrorMessage(error.errors?.[0]?.message || error.message || "An error occurred");
+      setErrorMessage(error.message || "Terjadi kesalahan.");
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="flex min-h-screen bg-teal-500 overflow-hidden">
@@ -129,11 +132,10 @@ export default function Register() {
                   className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   placeholder="Address"
                   required
-
                 />
               </div>
-              <div>
 
+              <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">
                   Select Location on Map
                 </label>
@@ -185,4 +187,3 @@ export default function Register() {
     </div>
   );
 }
-

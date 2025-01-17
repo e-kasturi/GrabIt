@@ -63,7 +63,7 @@ export default function OutletScreen({ route }) {
     const fetchOutlets = async () => {
       const token = await SecureStore.getItemAsync("access_token");
       try {
-        const response = await fetch(`${baseUrl}/api/outlets`, {
+        const response = await fetch(`${baseUrl}/api/outlets/produk`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -133,28 +133,6 @@ export default function OutletScreen({ route }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Outlet List</Text>
-      <MapView style={styles.map} region={userLocation}>
-        <Marker
-          coordinate={{
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-          }}
-          title="You are here"
-          pinColor="red"
-        />
-        {Array.isArray(filteredOutlets) &&
-          filteredOutlets.map((outlet, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: outlet.latitude,
-                longitude: outlet.longitude,
-              }}
-              title={outlet.name}
-              description={outlet.address}
-            />
-          ))}
-      </MapView>
       <TextInput
         style={styles.searchInput}
         placeholder="Search by outlet name..."

@@ -18,7 +18,9 @@ export default function TabNav() {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Profile") {
             iconName = focused ? "people" : "people-outline";
-          } else if (route.name === "Transaction") {
+          } else if (route.name === "Nofitication") {
+            iconName = focused ? "bell" : "bell-outline";
+          } else if (route.name === "Cart") {
             iconName = focused ? "cart" : "cart-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -39,7 +41,8 @@ export default function TabNav() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Profile" component={UserScreen}/>
-      <Tab.Screen name="Transaction" component={TransactionScreen}/>
+      <Tab.Screen name="Cart" component={TransactionScreen}/>
+      {/* <Tab.Screen name="Notification" componen={NotificationScreen}/> */}
 
     </Tab.Navigator>
   );
