@@ -11,6 +11,8 @@ import TransactionScreen from "../screens/TransactionScreen";
 import TabNav from "./TabNav";
 import { AuthContext } from "../contexts/AuthContext";
 import { StyleSheet } from "react-native";
+import ProductDetailScreen from "../screens/ProductDetailScreen";
+import WishlistScreen from "../screens/WishlistScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +35,8 @@ export default function StackNav() {
           <Stack.Screen name="UpdateProfile" component={UpdateProfileScreen} />
           <Stack.Screen name="WebView" component={WebViewScreen} />
           <Stack.Screen name="Transaction" component={TransactionScreen} />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
         </>
       ) : (
         <>

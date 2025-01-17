@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { useNavigation } from '@react-navigation/native';
 
 import { baseUrl } from "../configs/baseUrl";
 
+const categories = [
+  { name: "All", icon: "square"},
+  { name: "Men", icon: "male" },
+  { name: "Women", icon: "female" },
+  { name: "Makeup", icon: "paint-brush" },
+  { name: "Electronics", icon: "tv" }
+];
+
 const OutletScreen = () => {
+  const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,6 +47,10 @@ const OutletScreen = () => {
       </View>
     );
   }
+
+  const handleProductClick = (product) => {
+    navigation.navigate("ProductDetail", { product });
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -84,17 +98,17 @@ const OutletScreen = () => {
       {/* Product Listing */}
       <View style={styles.cardContainer}>
         {filteredProducts.map((product) => (
-          <TouchableOpacity key={product.slug} style={styles.card}>
+          <TouchableOpacity key={product.slug} style={styles.card} onPress={() => handleProductClick(product)}>
             <Image
               source={{ uri: product.imgUrl }}
               style={styles.productImage}
             />
             <View style={styles.cardContent}>
               <Text style={styles.productName}>{product.name}</Text>
-              <Text style={styles.productDescription}>
-                {product.description}
+              <Text style={styles.productDescription}>{product.description}</Text>
+              <Text style={styles.productPrice}>
+                Rp. {product.price.toLocaleString('id-ID')}
               </Text>
-              <Text style={styles.productPrice}>Rp. {product.price}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -112,6 +126,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
+    borderColor: "#ccc",
+    borderBottomWidth: 1,
+    paddingBottom: 5,
   },
   searchInput: {
     height: 40,
@@ -129,27 +146,29 @@ const styles = StyleSheet.create({
   },
   adContainer: {
     marginBottom: 20,
+    paddingBottom: 10,
   },
   adText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#2c3e50",
     marginBottom: 10,
   },
   adScrollView: {
     flexDirection: "row",
+    paddingHorizontal: 5,
   },
   adItem: {
-    width: 300, // Adjust width to fit the ads
-    marginRight: 15,
+    marginRight: 10,
     borderRadius: 8,
     overflow: "hidden",
+    width: 300,  
+    height: 160,
   },
   adImage: {
     width: "100%",
-    height: 150,
-    borderRadius: 8,
+    height: "100%",
     resizeMode: "cover",
+    borderRadius: 8,
   },
   cardContainer: {
     flexDirection: "row",
