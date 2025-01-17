@@ -7,7 +7,9 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
+import { FontAwesome, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -24,10 +26,13 @@ export default function UserScreen() {
     setIsSignedIn(false);
   };
 
+  const goToOrderHistory = () => {
+    navigation.navigate("OrderHistory");
+  };
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       const token = await SecureStore.getItemAsync("access_token");
-        console.log(token, "token");
       if (!token) {
         Alert.alert("Error", "You are not logged in");
         setIsSignedIn(false);
@@ -36,7 +41,7 @@ export default function UserScreen() {
 
       try {
         const response = await fetch(`${baseUrl}/api/customers/profile`, {
-          method: 'GET',
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -51,11 +56,8 @@ export default function UserScreen() {
         }
 
         const data = await response.json();
-        console.log(data, "data");
-
         setUser(data);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
         Alert.alert("Error", "Failed to fetch profile");
       } finally {
         setLoading(false);
@@ -68,7 +70,7 @@ export default function UserScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#3498db" />
       </View>
     );
   }
@@ -82,95 +84,168 @@ export default function UserScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>User Profile</Text>
-      <View style={styles.profile}>
-        <View>
+    <ScrollView style={styles.scrollContainer}>
+      {/* Header Section */}
+      <View style={styles.header}>
+        {/* Profile Info */}
+        <View style={styles.headerLeft}>
           <Image
             source={{
-              uri: `https://avatar.iran.liara.run/public/?username=${user[0].name}`,
+              uri: user?.imgUrl || "https://your-image-url.com/default-image.jpg",
             }}
             style={styles.profileImage}
           />
-          <Text style={styles.name}>{user[0].name || 'N/A'}</Text>
-          <View style={styles.text}>
-            <Text>📍 Email: {user[0].email ||"N/A"}</Text>
-            <Text>📞 Phone: {user[0].phone}</Text>
-            <Text>🏠 Address: {user[0].address}</Text>
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.userName}>{user[0]?.name || "User Name"}</Text>
+            <Text style={styles.userEmail}>
+              {user[0]?.email || "user@example.com"}
+            </Text>
           </View>
         </View>
-        <View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("UpdateProfile")}
-          >
-            <Text style={styles.detail}>Update</Text>
+
+        {/* Chat and Heart Icons */}
+        <View style={styles.headerIcons}>
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="heart-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity onPress={handleOnLogOut}>
-        <Text style={styles.logout}>Logout</Text>
+
+      {/* Pesanan Saya */}
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Pesanan Saya</Text>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.item}>
+            <FontAwesome name="credit-card" size={24} color="#e74c3c" />
+            <Text style={styles.itemText}>Belum Bayar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.item}>
+            <FontAwesome name="cube" size={24} color="#f39c12" />
+            <Text style={styles.itemText}>Dikemas</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.item}>
+            <FontAwesome name="truck" size={24} color="#2ecc71" />
+            <Text style={styles.itemText}>Dikirim</Text>
+          </TouchableOpacity>
+          {/* Tombol Riwayat Pesanan */}
+          <TouchableOpacity
+            style={styles.historyButton}
+            onPress={goToOrderHistory}
+          >
+            <Text style={styles.historyButtonText}>Riwayat Pesanan</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Dompet Saya */}
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Dompet Saya</Text>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.item}>
+            <MaterialIcons name="account-balance-wallet" size={24} color="#3498db" />
+            <Text style={styles.itemText}>PayPay</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Logout Button */}
+      <TouchableOpacity style={styles.logoutButton} onPress={handleOnLogOut}>
+        <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollContainer: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#f8f9fa",
+  },
+  header: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgb(170, 200, 210)",
-    paddingTop: 80,
+    justifyContent: "space-between",
+    backgroundColor: "#f39c12",
+    padding: 20,
   },
-  title: {
-    fontSize: 40,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
-    color: "rgba(22, 109, 159, 0.9)",
-    textShadowColor: "white",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  profile: {
-    justifyContent: "center",
+  headerLeft: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    padding: 10,
-    width: "80%",
-    borderRadius: 15,
-  },
-  text: {
-    fontSize: 18,
-    marginBottom: 10,
-    marginTop: 10,
-    width: "100%",
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  detail: {
-    marginTop: 20,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "rgb(170, 200, 210)",
-  },
-  logout: {
-    marginTop: 20,
-    borderRadius: 10,
-    padding: 10,
-    color: "white",
-    backgroundColor: "#ff6666",
+    flex: 1,
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 50,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  profileTextContainer: {
+    marginLeft: 10,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  userEmail: {
+    fontSize: 14,
+    color: "#fff",
+    marginTop: 5,
+  },
+  headerIcons: {
+    flexDirection: "row",
+  },
+  iconButton: {
+    marginLeft: 15,
+  },
+  sectionContainer: {
+    backgroundColor: "#fff",
+    marginVertical: 10,
+    padding: 15,
+    borderRadius: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
     marginBottom: 10,
-    marginTop: 10,
-    alignSelf: 'center'
+    color: "#2c3e50",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  item: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  itemText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "#34495e",
+  },
+  historyButton: {
+    marginLeft: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  historyButtonText: {
+    fontSize: 14,
+    color: "#3498db", 
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "#e74c3c",
+    margin: 20,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
