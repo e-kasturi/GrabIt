@@ -1,19 +1,27 @@
-import { StyleSheet, View } from "react-native";
+import React from "react";
+import { ScrollView, View, Text, StyleSheet } from "react-native";
 import OutletScreen from "./OutletScreen";
 
-export default function HomeScreen() {
+const HomeScreen = () => {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Daftar Produk</Text>
       <OutletScreen />
-    </View>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgb(170, 200, 210)",
-  }
+    backgroundColor: "#f4f4f4",
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
 });
+
+export default HomeScreen;

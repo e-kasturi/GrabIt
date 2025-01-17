@@ -1,67 +1,38 @@
+import React, { useContext } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ServiceScreen from "../screens/ServiceScreen";
-import OutletDetailScreen from "../screens/StatusScreen";
 import StatusScreen from "../screens/StatusScreen";
+import ServiceScreen from "../screens/ServiceScreen";
 import UserScreen from "../screens/UserScreen";
-import TabNav from "./TabNav";
 import UpdateProfileScreen from "../screens/UpdateProfileScreen";
-import { useContext} from "react";
-import {StyleSheet} from "react-native";
-import OutletScreen from "../screens/OutletScreen";
-import { AuthContext } from "../contexts/AuthContext";
 import WebViewScreen from "../screens/WebViewScreen";
 import TransactionScreen from "../screens/TransactionScreen";
+import TabNav from "./TabNav";
+import { AuthContext } from "../contexts/AuthContext";
+import { StyleSheet } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
 export default function StackNav() {
   const { isSignedIn } = useContext(AuthContext);
   // console.log(isSignedIn, "isSignedIn");
-  
+
   return (
-    <Stack.Navigator >
-      {/* <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          /> */}
+    <Stack.Navigator>
       {isSignedIn ? (
         <>
           <Stack.Screen
-            name="Home"
+            name="TabHome"
             component={TabNav}
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Status" component={StatusScreen} />
-          <Stack.Screen name="OutletDetail" component={OutletDetailScreen} />
           <Stack.Screen name="Service" component={ServiceScreen} />
-          <Stack.Screen
-            name="Profile"
-            component={UserScreen}
-            // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="UpdateProfile"
-            component={UpdateProfileScreen}
-            // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-          name="OutletScreen"
-          component={OutletScreen}
-          // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-          name="WebView"
-          component={WebViewScreen}
-          // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-          name="Transaction"
-          component={TransactionScreen}
-          // options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Profile" component={UserScreen} />
+          <Stack.Screen name="UpdateProfile" component={UpdateProfileScreen} />
+          <Stack.Screen name="WebView" component={WebViewScreen} />
+          <Stack.Screen name="Transaction" component={TransactionScreen} />
         </>
       ) : (
         <>
@@ -79,7 +50,7 @@ export default function StackNav() {
       )}
     </Stack.Navigator>
   );
-};
+}
 
 const styles = StyleSheet.create({
   loadingContainer: {
