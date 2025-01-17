@@ -1,14 +1,17 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 export default function Register() {
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [latitude, setLatitude] = useState<number>(-6.2);
   const [longitude, setLongitude] = useState<number>(106.816666);
+
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -126,10 +129,11 @@ export default function Register() {
                   className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   placeholder="Address"
                   required
+
                 />
               </div>
-
               <div>
+
                 <label className="block mb-2 text-sm font-medium text-gray-700">
                   Select Location on Map
                 </label>
@@ -181,3 +185,4 @@ export default function Register() {
     </div>
   );
 }
+
