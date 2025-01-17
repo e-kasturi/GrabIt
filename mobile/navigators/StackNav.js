@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import StatusScreen from "../screens/StatusScreen";
-import ServiceScreen from "../screens/ServiceScreen";
+
 import UserScreen from "../screens/UserScreen";
 import UpdateProfileScreen from "../screens/UpdateProfileScreen";
 import WebViewScreen from "../screens/WebViewScreen";
@@ -30,13 +30,14 @@ export default function StackNav() {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Status" component={StatusScreen} />
-          <Stack.Screen name="Service" component={ServiceScreen} />
+         
           <Stack.Screen name="Profile" component={UserScreen} />
           <Stack.Screen name="UpdateProfile" component={UpdateProfileScreen} />
           <Stack.Screen name="WebView" component={WebViewScreen} />
-          <Stack.Screen name="Transaction" component={TransactionScreen} />
+          <Stack.Screen name="TransactionScreen" component={TransactionScreen} />
           <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
           <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
+          
         </>
       ) : (
         <>

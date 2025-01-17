@@ -2,13 +2,21 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { baseUrl } from "../configs/baseUrl";
 
 const ProductDetailScreen = ({ route, navigation }) => {
   const { product } = route.params;
   const [wishlist, setWishlist] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [outletId, setOutletId] = useState(''); // Asumsikan outletId diambil dari context atau session
+  const [userId, setUserId] = useState(''); // Asumsikan userId diambil dari context atau session
+  const [selectedServices, setSelectedServices] = useState([]); // Asumsikan ini diatur berdasarkan user
+  const [transactionDate, setTransactionDate] = useState(new Date().toISOString()); // Tanggal transaksi saat ini
 
   useEffect(() => {
     loadWishlistFromStorage();
+    loadCartFromStorage();
   }, []);
 
   const saveWishlistToStorage = async (wishlist) => {
@@ -30,6 +38,25 @@ const ProductDetailScreen = ({ route, navigation }) => {
     }
   };
 
+  const saveCartToStorage = async (cart) => {
+    try {
+      await AsyncStorage.setItem("cart", JSON.stringify(cart));
+    } catch (error) {
+      console.error("Failed to save cart to storage:", error);
+    }
+  };
+
+  const loadCartFromStorage = async () => {
+    try {
+      const savedCart = await AsyncStorage.getItem("cart");
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (error) {
+      console.error("Failed to load cart from storage:", error);
+    }
+  };
+
   const toggleWishlist = async (product) => {
     let updatedWishlist;
 
@@ -42,15 +69,51 @@ const ProductDetailScreen = ({ route, navigation }) => {
     }
 
     setWishlist(updatedWishlist);
-
-
     await saveWishlistToStorage(updatedWishlist);
-
-    navigation.navigate('WishlistScreen', { wishlist: updatedWishlist });
   };
 
   const isInWishlist = (product) => {
     return wishlist.some((item) => item.slug === product.slug);
+  };
+
+  const handleAddTransaction = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("access_token");
+
+      if (!token) {
+        Alert.alert("Unauthorized", "Please log in to continue.");
+        return navigation.navigate("Login");
+      }
+
+
+      const response = await fetch(`${baseUrl}/api/customers/transactions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          outletId,
+          customerId: userId,
+          services: selectedServices.map((item) => ({ serviceId: item._id })),
+          transactionDate,
+          totalAmount: 0, // Ganti dengan totalAmount yang sesuai
+          status: "pending",
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error("Failed to add transaction");
+      }
+
+      Alert.alert("Success", "Transaction has been added!");
+      setSelectedServices([]); // Reset selected services after successful transaction
+      navigation.navigate("Transaction");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Unable to add transaction. Please try again.");
+    }
   };
 
   return (
@@ -82,7 +145,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
             />
             <Text style={styles.iconText}>Add to Wishlist</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={handleAddTransaction}>
             <Icon name="shopping-cart" size={24} color="#000" />
             <Text style={styles.iconText}>Add to Cart</Text>
           </TouchableOpacity>

@@ -1,20 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  Alert,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { RadioButton } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { baseUrl } from "../configs/baseUrl";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-// import { useRoute } from "@react-navigation/native";
 
 export default function TransactionScreen() {
   const [transactions, setTransactions] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState({});
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
@@ -23,8 +18,6 @@ export default function TransactionScreen() {
       const response = await fetch(`${baseUrl}/api/customers/transactions`);
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = await response.json();
-      console.log(data, "data");
-
       setTransactions(data);
     } catch (error) {
       console.error(error);
@@ -52,7 +45,6 @@ export default function TransactionScreen() {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to complete order");
       }
-      const data = await response.json();
       Alert.alert("Success", "Order completed successfully");
       await fetchTransactions();
     } catch (error) {
@@ -61,15 +53,7 @@ export default function TransactionScreen() {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchTransactions();
-    }, [])
-  );
-
   const handleDelete = async (transactionId) => {
-    console.log(transactionId, "transactionId");
-
     try {
       const response = await fetch(
         `${baseUrl}/api/customers/transactions/${transactionId}`,
@@ -86,7 +70,6 @@ export default function TransactionScreen() {
       setTransactions((prev) =>
         prev.filter((transaction) => transaction._id !== transactionId)
       );
-      const data = await response.json();
       Alert.alert("Success", "Transaction deleted successfully");
     } catch (error) {
       console.log(error);
@@ -94,252 +77,189 @@ export default function TransactionScreen() {
     }
   };
 
-  // console.log(transactions, 'transactions');
+  const toggleProductSelection = (productId) => {
+    setSelectedProducts((prevState) => {
+      const newSelection = { ...prevState, [productId]: !prevState[productId] };
+      return newSelection;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const allSelected = !selectAllChecked;
+    setSelectAllChecked(allSelected);
+    setSelectedProducts(
+      transactions.reduce((acc, transaction) => {
+        transaction.products.forEach((product) => {
+          acc[product._id] = allSelected;
+        });
+        return acc;
+      }, {})
+    );
+  };
+
+  const checkout = () => {
+    const selectedTransactionIds = Object.keys(selectedProducts).filter(
+      (productId) => selectedProducts[productId]
+    );
+    if (selectedTransactionIds.length === 0) {
+      Alert.alert("No products selected", "Please select at least one product to proceed.");
+      return;
+    }
+    // Implement checkout logic here
+    Alert.alert("Checkout", "Proceeding with the checkout.");
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+    }, [])
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Transaction</Text>
-      {loading ? (
-        <Text>Loading transactions...</Text>
-      ) : (
-        <FlatList
-          onRefresh={() => fetchTransactions()}
-          refreshing={loading}
-          data={transactions}
-          keyExtractor={(item, i) => i}
-          renderItem={({ item }) => (
-            <View style={styles.transactionCard}>
-              <Text style={styles.transactionName}>
-                {item.outletDetail.length > 0 && item.outletDetail[0].name}
-                {/* {item.outletDetail[0].name} */}
-              </Text>
-              <Text>
-                {item.outletDetail.length > 0 && item.outletDetail[0].address}
-                {/* {item.outletDetail[0].name} */}
-              </Text>
-              <View style={styles.nameContainer}>
-                <View style={styles.serviceContainer}>
-                  <Text style={styles.service}>Services:</Text>
-                  <View style={styles.services}>
-                    {item.serviceDetail.map((el, i) => {
-                      return (
-                        <View key={i} style={{ flexDirection: "row", gap: 10 }}>
-                          <Image
-                            source={{
-                              uri: `https://image.pollinations.ai/prompt/${el.name}with%20wooden%20background%22?width=500&height=500&nologo=true`,
-                            }}
-                            style={styles.image}
-                          />
-                          <View style={{ flex: 1 }}>
-                            <Text>{el.name}</Text>
-                            <Text>Rp.{el.price}</Text>
-                          </View>
-                          <View>
-                            <Text>{item.services[i].quantity || 0} kg</Text>
-                            {/* <Text>Rp.{el.price}</Text> */}
-                          </View>
-                        </View>
-                      );
-                    })}
-                  </View>
-                </View>
-                <View>
-                  <TouchableOpacity
-                    style={[
-                      styles.buttonDelete,
-                      (item.status === "packing" ||
-                        item.status === "onprogress" ||
-                        item.status === "pickup" ||
-                        item.status === "dispatch" ||
-                        item.status === "washing" ||
-                        item.status === "drying" ||
-                        item.status === "ironing") &&
-                        styles.buttonDisabled,
-                    ]}
-                    disabled={
-                      item.status === "packing" ||
-                      item.status === "onprogress" ||
-                      item.status === "pickup" ||
-                      item.status === "dispatch" ||
-                      item.status === "washing" ||
-                      item.status === "drying" ||
-                      item.status === "ironing"
-                    }
-                    onPress={() => handleDelete(item._id)}
-                  >
-                    <Text style={styles.textDelete}>
-                      <FontAwesome6
-                        name="trash-can"
-                        size={20}
-                        color="#cd7171"
-                      />
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View>
-                <Text style={styles.transactionPrice}>
-                  Total Price: Rp. {item.totalAmount}
-                </Text>
-                <TouchableOpacity
-                  style={[
-                    styles.buttonConfirm,
-                    (item.status === "pending" ||
-                      item.status === "packing" ||
-                      item.status === "pickup" ||
-                      item.status === "dispatch" ||
-                      item.status === "washing" ||
-                      item.status === "drying" ||
-                      item.status === "ironing" ||
-                      item.status === "onprogress" ||
-                      item.status === "delivered") &&
-                      styles.buttonDisabled,
-                  ]}
-                  disabled={
-                    item.status === "pending" ||
-                    item.status === "packing" ||
-                    item.status === "pickup" ||
-                    item.status === "dispatch" ||
-                    item.status === "washing" ||
-                    item.status === "drying" ||
-                    item.status === "ironing" ||
-                    item.status === "onprogress" ||
-                    item.status === "delivered"
-                  }
-                  onPress={() => {
-                    if (item.status === "deliver") {
-                      navigation.navigate("WebView", {
-                        paymentLink: item.paymentLink,
-                      });
-                    }
-                  }}
-                >
-                  <Text style={styles.buttonText}>
-                    {item.status === "delivered"
-                      ? "Done"
-                      : item.status === "deliver"
-                      ? "Pay Order"
-                      : item.status.charAt(0).toUpperCase() +
-                        item.status.slice(1)}
-                  </Text>
-                </TouchableOpacity>
-                {item.status === "paid" && (
-                  <TouchableOpacity
-                    style={styles.buttonConfirm}
-                    onPress={() => completeOrder(item._id)}
-                  >
-                    <Text style={styles.buttonText}>Complete Order</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Transaction Details</Text>
+
+      {transactions.map((transaction) => (
+        <View key={transaction._id} style={styles.productItem}>
+          <Text style={styles.outletName}>Outlet: {transaction.outletName || "Unknown"}</Text>
+          {transaction.products.map((product) => (
+            <View key={product._id} style={styles.productRow}>
+              <RadioButton
+                value={product._id}
+                status={selectedProducts[product._id] ? 'checked' : 'unchecked'}
+                onPress={() => toggleProductSelection(product._id)}
+                color="#3498db"
+              />
+              <Text style={styles.productName}>{product.name}</Text>
+              <TouchableOpacity
+                style={styles.trashIcon}
+                onPress={() => handleDelete(transaction._id)}
+              >
+                <Icon name="trash" size={20} color="#e74c3c" />
+              </TouchableOpacity>
             </View>
-          )}
-          ListEmptyComponent={<Text>No transactions available.</Text>}
-        />
-      )}
-    </View>
+          ))}
+          <Text style={styles.productPrice}>
+            Rp. {transaction.totalAmount.toLocaleString('id-ID')}
+          </Text>
+        </View>
+      ))}
+
+      <Text style={styles.totalAmount}>Total: Rp. {transactions.reduce((total, transaction) => total + transaction.totalAmount, 0).toLocaleString('id-ID')}</Text>
+
+      <View style={styles.checkoutRow}>
+        <View style={styles.selectAllRow}>
+          <RadioButton
+            value="selectAll"
+            status={selectAllChecked ? 'checked' : 'unchecked'}
+            onPress={toggleSelectAll}
+            color="#3498db"
+          />
+          <Text style={styles.selectAllText}>Select All</Text>
+        </View>
+
+        <TouchableOpacity style={styles.completeButton} onPress={checkout}>
+          <Text style={styles.buttonText}>Checkout</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgb(170, 200, 210)",
-    paddingHorizontal: 20,
-    paddingTop: 30,
+    padding: 15,
+    backgroundColor: '#f8f8f8',
+  },
+  outletName: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#2980b9",
+    marginBottom: 6,
+    marginLeft: 12,
   },
   title: {
-    fontSize: 32,
-    fontWeight: "800",
-    marginBottom: 20,
-    textAlign: "center",
-    color: "rgba(22, 109, 159, 0.9)",
-    textShadowColor: "white",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10,
-  },
-  transactionCard: {
-    backgroundColor: "#fff",
-    padding: 20,
-    marginBottom: 12,
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  serviceContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    overflow: "hidden",
-    flex: 1,
-    marginRight: 10,
-  },
-  service: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#2c3e50",
-    marginBottom: 8,
-  },
-  services: {
-    // marginLeft: 25,
-    gap: 10,
-  },
-  nameContainer: {
-    flex: 1,
-    marginTop: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  transactionName: {
-    fontSize: 18,
+    fontSize: 26,
     fontWeight: "bold",
+    marginVertical: 20,
+    textAlign: "center",
     color: "#2c3e50",
   },
-  buttonDelete: {
-    padding: 5,
-    borderRadius: 10,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#cd7171",
-  },
-  textDelete: {
-    color: "white",
-  },
-  transactionPrice: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#2c3e50",
-  },
-  buttonConfirm: {
-    backgroundColor: "rgba(81, 145, 167, 0.9)",
-    padding: 10,
-    borderRadius: 10,
+  selectAllRow: {
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 20,
+    marginLeft: 10,
+  },
+  selectAllText: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginLeft: 10,
+    color: "#34495e",
+  },
+  productItem: {
+    backgroundColor: "#fff",
+    padding: 18,
+    marginBottom: 12,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+    marginHorizontal: 10,
+  },
+  productRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    justifyContent: 'space-between',
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginLeft: 12,
+    color: "#34495e",
+    flex: 1,
+  },
+  trashIcon: {
+    padding: 6,
+  },
+  productPrice: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#e74c3c",
+    marginLeft: 38,
+  },
+  totalAmount: {
+    fontSize: 22,
+    fontWeight: "bold",
     marginTop: 20,
-    width: "100%",
-    alignSelf: "center",
+    textAlign: "center",
+    color: "#2ecc71",
+  },
+  completeButton: {
+    backgroundColor: "#2ecc71",
+    paddingVertical: 15,
+    marginTop: 30,
+    marginBottom: 20,
+    borderRadius: 12,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
   buttonText: {
+    marginLeft: 12,
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "500",
   },
-  buttonDisabled: {
-    backgroundColor: "gray",
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
+  checkoutRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 30,
   },
 });
+
