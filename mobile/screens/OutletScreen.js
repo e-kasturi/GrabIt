@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome'; 
-import { useNavigation } from '@react-navigation/native';
-
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Alert,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { baseUrl } from "../configs/baseUrl";
-
-const categories = [
-  { name: "All", icon: "square"},
-  { name: "Men", icon: "male" },
-  { name: "Women", icon: "female" },
-  { name: "Makeup", icon: "paint-brush" },
-  { name: "Electronics", icon: "tv" }
-];
 
 const OutletScreen = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -32,13 +34,54 @@ const OutletScreen = () => {
       }
     };
 
+    const fetchWishlist = async () => {
+      const savedWishlist = await loadWishlistFromStorage();
+      setWishlist(savedWishlist);
+    };
+
     fetchProducts();
+    fetchWishlist();
   }, []);
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const saveWishlistToStorage = async (wishlist) => {
+    try {
+      await AsyncStorage.setItem("wishlist", JSON.stringify(wishlist));
+    } catch (error) {
+      console.error("Failed to save wishlist to storage:", error);
+    }
+  };
+
+  const loadWishlistFromStorage = async () => {
+    try {
+      const savedWishlist = await AsyncStorage.getItem("wishlist");
+      return savedWishlist ? JSON.parse(savedWishlist) : [];
+    } catch (error) {
+      console.error("Failed to load wishlist from storage:", error);
+      return [];
+    }
+  };
+
+  const toggleWishlist = async (product) => {
+    let updatedWishlist;
+    if (wishlist.some((item) => item.slug === product.slug)) {
+      updatedWishlist = wishlist.filter((item) => item.slug !== product.slug);
+      Alert.alert("Wishlist", "Produk telah dihapus dari wishlist.");
+    } else {
+      updatedWishlist = [...wishlist, product];
+      Alert.alert("Wishlist", "Produk berhasil ditambahkan ke wishlist!");
+    }
+
+    setWishlist(updatedWishlist);
+    await saveWishlistToStorage(updatedWishlist);
+  };
+
+  const isInWishlist = (product) => {
+    return wishlist.some((item) => item.slug === product.slug);
+  };
+
+  const handleProductClick = (product) => {
+    navigation.navigate("ProductDetail", { product });
+  };
 
   if (loading) {
     return (
@@ -47,10 +90,6 @@ const OutletScreen = () => {
       </View>
     );
   }
-
-  const handleProductClick = (product) => {
-    navigation.navigate("ProductDetail", { product });
-  };
 
   return (
     <ScrollView style={styles.container}>
@@ -62,7 +101,13 @@ const OutletScreen = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        <TouchableOpacity style={styles.chatIconContainer}>
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => navigation.navigate("WishlistScreen", { wishlist })}
+        >
+          <Icon name="heart" size={20} color="#555" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconContainer}>
           <Icon name="comment" size={20} color="#555" />
         </TouchableOpacity>
       </View>
@@ -71,24 +116,21 @@ const OutletScreen = () => {
       <View style={styles.adContainer}>
         <Text style={styles.adText}>Special Offer: Get 20% off on all products!</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.adScrollView}>
-          {/* Ad 1 */}
           <View style={styles.adItem}>
             <Image
-              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res92b2c6c4c1a81517317dc888979411dbfr.jpg' }} 
+              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res92b2c6c4c1a81517317dc888979411dbfr.jpg' }}
               style={styles.adImage}
             />
           </View>
-          {/* Ad 2 */}
           <View style={styles.adItem}>
             <Image
-              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/resaec93c74de01c9d8b3fdb02034fd2d31fr.jpg' }} 
+              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/resaec93c74de01c9d8b3fdb02034fd2d31fr.jpg' }}
               style={styles.adImage}
             />
           </View>
-          {/* Ad 3 */}
           <View style={styles.adItem}>
             <Image
-              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res3f2b5592a5b29eb399cfbcbb38777bb9fr.jpg' }} 
+              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res3f2b5592a5b29eb399cfbcbb38777bb9fr.jpg' }}
               style={styles.adImage}
             />
           </View>
@@ -97,20 +139,36 @@ const OutletScreen = () => {
 
       {/* Product Listing */}
       <View style={styles.cardContainer}>
-        {filteredProducts.map((product) => (
-          <TouchableOpacity key={product.slug} style={styles.card} onPress={() => handleProductClick(product)}>
-            <Image
-              source={{ uri: product.imgUrl }}
-              style={styles.productImage}
-            />
+        {products.map((product) => (
+          <View key={product.slug} style={styles.card}>
+            <TouchableOpacity onPress={() => handleProductClick(product)}>
+              <Image
+                source={{ uri: product.imgUrl }}
+                style={styles.productImage}
+              />
+            </TouchableOpacity>
             <View style={styles.cardContent}>
-              <Text style={styles.productName}>{product.name}</Text>
-              <Text style={styles.productDescription}>{product.description}</Text>
+              <View style={styles.productHeader}>
+                <Text style={styles.productName}>{product.name}</Text>
+                <TouchableOpacity
+                  onPress={() => toggleWishlist(product)}
+                  style={styles.heartIconContainer}
+                >
+                  <Icon
+                    name={isInWishlist(product) ? "heart" : "heart-o"}
+                    size={18}
+                    color="red"
+                  />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.productDescription}>
+                {product.description}
+              </Text>
               <Text style={styles.productPrice}>
-                Rp. {product.price.toLocaleString('id-ID')}
+                Rp. {product.price.toLocaleString("id-ID")}
               </Text>
             </View>
-          </TouchableOpacity>
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -126,90 +184,86 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
-    borderColor: "#ccc",
-    borderBottomWidth: 1,
-    paddingBottom: 5,
   },
   searchInput: {
+    flex: 1,
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    paddingLeft: 10,
-    flex: 1,
-  },
-  chatIconContainer: {
-    marginLeft: 10,
-    padding: 8,
-    backgroundColor: "#f1f1f1",
-    borderRadius: 5,
+    paddingHorizontal: 10,
   },
   adContainer: {
     marginBottom: 20,
-    paddingBottom: 10,
   },
   adText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#2c3e50",
     marginBottom: 10,
   },
   adScrollView: {
     flexDirection: "row",
-    paddingHorizontal: 5,
   },
   adItem: {
-    marginRight: 10,
+    width: 300,
+    marginRight: 15,
     borderRadius: 8,
     overflow: "hidden",
-    width: 300,  
-    height: 160,
   },
   adImage: {
     width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    height: 150,
     borderRadius: 8,
+    resizeMode: "cover",
+  },
+  iconContainer: {
+    marginLeft: 10,
+    padding: 8,
   },
   cardContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginTop: 20,
   },
   card: {
     width: "48%",
+    marginBottom: 15,
     backgroundColor: "#fff",
     borderRadius: 8,
-    overflow: "hidden",
-    marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
     elevation: 4,
   },
   productImage: {
     width: "100%",
-    height: 200,
-    resizeMode: "cover",
+    height: 150,
   },
   cardContent: {
     padding: 10,
   },
+  productHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   productName: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5,
   },
   productDescription: {
     fontSize: 14,
     color: "#7f8c8d",
-    marginBottom: 5,
   },
   productPrice: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#e74c3c",
+    marginTop: 5,
+  },
+  heartIconContainer: {
+    marginLeft: 10,
   },
   loadingContainer: {
     flex: 1,
