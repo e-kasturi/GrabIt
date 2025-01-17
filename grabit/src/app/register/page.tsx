@@ -20,7 +20,7 @@ export default function Register() {
 
     const rawFormData = {
       name: formData.get("name"),
-      namaOutlet: formData.get("namaOutlet"),
+      nameOutlet: formData.get("nameOutlet"),
       email: formData.get("email"),
       password: formData.get("password"),
       phone: formData.get("phone"),
@@ -86,8 +86,8 @@ export default function Register() {
             <form onSubmit={handleRegister} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { id: "name", label: "Name Outlet", type: "text" },
-                  { id: "namaOutlet", label: "Name", type: "text" },
+                  { id: "name", label: "Name", type: "text" },
+                  { id: "nameOutlet", label: "Name Outlet", type: "text" },
                   { id: "email", label: "Email", type: "email" },
                   { id: "password", label: "Password", type: "password" },
                   { id: "phone", label: "Phone", type: "tel" },

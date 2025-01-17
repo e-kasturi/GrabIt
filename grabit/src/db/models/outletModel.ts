@@ -12,7 +12,7 @@ const outletSchema = z.object({
     .string()
     .regex(/^\+?\d{10,15}$/, "Phone must be a valid phone number."),
   email: z.string().email("Email must be a valid email address."),
-  password: z.string().min(5, "Password must be at least 8 characters long."),
+  password: z.string().min(5, "Password must be at least 5 characters long."),
 });
 
 class OutletModel {
