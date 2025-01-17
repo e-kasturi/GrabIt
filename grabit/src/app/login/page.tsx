@@ -1,3 +1,4 @@
+'use client'
 import Link from "next/link";
 import { useState } from "react";
 import Swal from "sweetalert2";
@@ -73,7 +74,7 @@ const handleLogin = async(e: React.FormEvent)=>{
                   <input
                     name="email"
                     value={email}
-                    onChange={(e)=> setEmail}
+                    onChange={(e)=> setEmail(e.target.value)}
                     type="text"
                     required
                     className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
@@ -89,7 +90,7 @@ const handleLogin = async(e: React.FormEvent)=>{
                   <input
                     name="password"
                     value={password}
-                    onChange={(e)=> setPassword}
+                    onChange={(e)=> setPassword(e.target.value)}
                     type="password"
                     required=""
                     className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
