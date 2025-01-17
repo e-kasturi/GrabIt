@@ -5,15 +5,17 @@ import { database } from "../config/config";
 import { ObjectId } from "mongodb";
 
 const outletSchema = z.object({
-    name: z.string(),
-    nameOutlet: z.string().min(1, "Name is required"),
-    email: z.string().email("Email must be a valid email address"),
-    password: z.string().min(5, "Password must be at least 5 characters long"),
-    address: z.string().min(1, "Address is required"),
-    phone: z
+  name: z.string().nonempty("Name is required"),
+  namaOutlet: z.string().nonempty("Outlet name is required"),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(5, "Password must be at least 5 characters"),
+  phone: z
     .string()
-    .regex(/^\d{10,14}$/, "Phone number must be valid phone number"),
+    .regex(/^\d{10,14}$/, "Invalid phone number")
+    .nonempty("Phone number is required"),
+  address: z.string().nonempty("Address is required"),
 });
+
 
 class OutletModel {
  static collection() {
