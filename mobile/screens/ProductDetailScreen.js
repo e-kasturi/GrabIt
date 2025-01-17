@@ -1,13 +1,56 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProductDetailScreen = ({ route }) => {
-  const { product } = route.params;  
-  const [isHearted, setIsHearted] = useState(false);
+const ProductDetailScreen = ({ route, navigation }) => {
+  const { product } = route.params;
+  const [wishlist, setWishlist] = useState([]);
 
-  const toggleHeart = () => {
-    setIsHearted(!isHearted);
+  useEffect(() => {
+    loadWishlistFromStorage();
+  }, []);
+
+  const saveWishlistToStorage = async (wishlist) => {
+    try {
+      await AsyncStorage.setItem("wishlist", JSON.stringify(wishlist));
+    } catch (error) {
+      console.error("Failed to save wishlist to storage:", error);
+    }
+  };
+
+  const loadWishlistFromStorage = async () => {
+    try {
+      const savedWishlist = await AsyncStorage.getItem("wishlist");
+      if (savedWishlist) {
+        setWishlist(JSON.parse(savedWishlist));
+      }
+    } catch (error) {
+      console.error("Failed to load wishlist from storage:", error);
+    }
+  };
+
+  const toggleWishlist = async (product) => {
+    let updatedWishlist;
+
+    if (wishlist.some((item) => item.slug === product.slug)) {
+      updatedWishlist = wishlist.filter((item) => item.slug !== product.slug);
+      Alert.alert("Wishlist", "Produk telah dihapus dari wishlist.");
+    } else {
+      updatedWishlist = [...wishlist, product];
+      Alert.alert("Wishlist", "Produk berhasil ditambahkan ke wishlist!");
+    }
+
+    setWishlist(updatedWishlist);
+
+
+    await saveWishlistToStorage(updatedWishlist);
+
+    navigation.navigate('WishlistScreen', { wishlist: updatedWishlist });
+  };
+
+  const isInWishlist = (product) => {
+    return wishlist.some((item) => item.slug === product.slug);
   };
 
   return (
@@ -31,11 +74,11 @@ const ProductDetailScreen = ({ route }) => {
 
         {/* Heart and Add to Cart Buttons */}
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.iconButton} onPress={toggleHeart}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => toggleWishlist(product)}>
             <Icon 
               name="heart" 
               size={24} 
-              color={isHearted ? "red" : "#000"} 
+              color={isInWishlist(product) ? "red" : "#000"} 
             />
             <Text style={styles.iconText}>Add to Wishlist</Text>
           </TouchableOpacity>

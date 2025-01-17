@@ -1,14 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WishlistScreen = ({ route }) => {
-  const { wishlist: initialWishlist } = route?.params || [];
-  const [wishlist, setWishlist] = useState(initialWishlist);
+  const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
 
+  useEffect(() => {
+    loadWishlistFromStorage();
+  }, [route?.params?.wishlist]);
+
+  const loadWishlistFromStorage = async () => {
+    try {
+      const savedWishlist = await AsyncStorage.getItem("wishlist");
+      if (savedWishlist) {
+        setWishlist(JSON.parse(savedWishlist));
+      }
+    } catch (error) {
+      console.error("Failed to load wishlist from storage:", error);
+    }
+  };
+
   const handleRemoveFromWishlist = (product) => {
-    setWishlist(wishlist.filter((item) => item.slug !== product.slug));
+    const updatedWishlist = wishlist.filter((item) => item.slug !== product.slug);
+    setWishlist(updatedWishlist);
+    AsyncStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
   };
 
   const handleAddToCart = (product) => {
