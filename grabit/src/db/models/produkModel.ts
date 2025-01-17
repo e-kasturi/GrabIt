@@ -1,4 +1,4 @@
-import { produkType } from "@/type";
+import { productType } from "@/type";
 import { database } from "../config/config";
 import { z } from "zod";
 import { ObjectId } from "mongodb";
@@ -14,10 +14,10 @@ const produkSchema = z.object({
 
 class ProductModel {
   static collection() {
-    return database.collection<produkType>("products");
+    return database.collection<productType>("products");
   }
 
-  static async create(newProduk: produkType) {
+  static async create(newProduk: productType) {
     produkSchema.parse(newProduk);
     newProduk.slug = newProduk.name.toLowerCase().replace(/\s+/g, "-");
 
@@ -39,7 +39,7 @@ class ProductModel {
     return await this.collection().deleteOne({ slug: slug });
   }
 
-  static async updateBySlug(slug: string, newProduk: produkType) {
+  static async updateBySlug(slug: string, newProduk: productType) {
     newProduk.slug = newProduk.name.toLowerCase().replace(/\s+/g, "-");
     return await this.collection().updateOne(
       { slug: slug },
@@ -56,7 +56,7 @@ class ProductModel {
     return await this.collection().findOne({ _id: new ObjectId(id) });
   }
 
-  static async findAllwithOutletDetails(): Promise<produkType[]> {
+  static async findAllwithOutletDetails(): Promise<productType[]> {
     const agg = [
       {
         $addFields: {
@@ -94,7 +94,7 @@ class ProductModel {
       },
     ];
 
-    return (await this.collection().aggregate(agg).toArray()) as produkType[];
+    return (await this.collection().aggregate(agg).toArray()) as productType[];
   }
 
   static async findByOutletId(outletId: string) {
