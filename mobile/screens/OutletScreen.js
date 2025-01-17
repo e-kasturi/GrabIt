@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome'; 
 
 import { baseUrl } from "../configs/baseUrl";
@@ -25,7 +25,6 @@ const OutletScreen = () => {
     fetchProducts();
   }, []);
 
-  // Filter products based on the search query
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -40,7 +39,8 @@ const OutletScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      {/* Search and Chat Section */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -52,6 +52,36 @@ const OutletScreen = () => {
           <Icon name="comment" size={20} color="#555" />
         </TouchableOpacity>
       </View>
+
+      {/* Horizontal Advertisement Section */}
+      <View style={styles.adContainer}>
+        <Text style={styles.adText}>Special Offer: Get 20% off on all products!</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.adScrollView}>
+          {/* Ad 1 */}
+          <View style={styles.adItem}>
+            <Image
+              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res92b2c6c4c1a81517317dc888979411dbfr.jpg' }} 
+              style={styles.adImage}
+            />
+          </View>
+          {/* Ad 2 */}
+          <View style={styles.adItem}>
+            <Image
+              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/resaec93c74de01c9d8b3fdb02034fd2d31fr.jpg' }} 
+              style={styles.adImage}
+            />
+          </View>
+          {/* Ad 3 */}
+          <View style={styles.adItem}>
+            <Image
+              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res3f2b5592a5b29eb399cfbcbb38777bb9fr.jpg' }} 
+              style={styles.adImage}
+            />
+          </View>
+        </ScrollView>
+      </View>
+
+      {/* Product Listing */}
       <View style={styles.cardContainer}>
         {filteredProducts.map((product) => (
           <TouchableOpacity key={product.slug} style={styles.card}>
@@ -69,7 +99,7 @@ const OutletScreen = () => {
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -96,6 +126,30 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: "#f1f1f1",
     borderRadius: 5,
+  },
+  adContainer: {
+    marginBottom: 20,
+  },
+  adText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginBottom: 10,
+  },
+  adScrollView: {
+    flexDirection: "row",
+  },
+  adItem: {
+    width: 300, // Adjust width to fit the ads
+    marginRight: 15,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  adImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 8,
+    resizeMode: "cover",
   },
   cardContainer: {
     flexDirection: "row",
