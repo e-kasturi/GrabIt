@@ -22,7 +22,7 @@ return(
       <ul
         tabIndex={0}
         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-        <li><Link href="/order/prepare">Need to be sent</Link></li>
+        <li><Link href="/order">Need to be sent</Link></li>
       <li><Link href="/order/sent">Sent</Link></li>
       <li><Link href="/order/done">Done</Link></li>
       <li><Link href="/order/canceled">Canceled</Link></li>
