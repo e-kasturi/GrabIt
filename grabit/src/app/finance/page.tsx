@@ -8,7 +8,7 @@ export default function Finance() {
         </div>
   
         {/* Section Balance and Withdraw */}
-        <div className="flex justify-center mt-10 space-x-10 w-full">
+        <div className="flex justify-center mt-10 space-x-12 w-full">
           {/* Total Balance */}
           <div className="bg-white w-1/3 h-42 p-10 rounded-lg shadow-lg flex flex-col items-center justify-between">
             <span className="text-lg lg:text-xl font-semibold">Total Saldo:</span>
