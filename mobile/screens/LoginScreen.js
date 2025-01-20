@@ -89,7 +89,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Image source={require("../assets/logo.jpg")} style={styles.image} />
       <View>
-        <Text style={styles.title}>CuanClean</Text>
+        <Text style={styles.title}>GrabIt</Text>
       </View>
       <View style={styles.form}>
         <TextInput

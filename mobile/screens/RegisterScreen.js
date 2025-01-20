@@ -105,7 +105,7 @@ export default function RegisterScreen() {
     <View style={styles.container}>
       <Image source={require("../assets/logo.jpg")} style={styles.image} />
       <View>
-        <Text style={styles.title}>CleanCuan</Text>
+        <Text style={styles.title}>GrabIt</Text>
       </View>
       <View style={styles.form}>
         <TextInput

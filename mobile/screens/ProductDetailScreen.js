@@ -9,10 +9,10 @@ const ProductDetailScreen = ({ route, navigation }) => {
   const { product } = route.params;
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
-  const [outletId, setOutletId] = useState(''); // Asumsikan outletId diambil dari context atau session
-  const [userId, setUserId] = useState(''); // Asumsikan userId diambil dari context atau session
-  const [selectedServices, setSelectedServices] = useState([]); // Asumsikan ini diatur berdasarkan user
-  const [transactionDate, setTransactionDate] = useState(new Date().toISOString()); // Tanggal transaksi saat ini
+  const [outletId, setOutletId] = useState(''); 
+  const [userId, setUserId] = useState(''); 
+  const [selectedServices, setSelectedServices] = useState([]); 
+  const [transactionDate, setTransactionDate] = useState(new Date().toISOString()); 
 
   useEffect(() => {
     loadWishlistFromStorage();
@@ -95,9 +95,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
         body: JSON.stringify({
           outletId,
           customerId: userId,
-          services: selectedServices.map((item) => ({ serviceId: item._id })),
+          products: selectedServices.map((item) => ({ productId: item._id })),
           transactionDate,
-          totalAmount: 0, // Ganti dengan totalAmount yang sesuai
+          totalAmount: 0, 
           status: "pending",
         }),
       });
@@ -108,7 +108,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
       }
 
       Alert.alert("Success", "Transaction has been added!");
-      setSelectedServices([]); // Reset selected services after successful transaction
+      setSelectedServices([]); 
       navigation.navigate("Transaction");
     } catch (error) {
       console.error(error);
