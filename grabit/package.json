@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@react-google-maps/api": "^2.20.5",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.7",

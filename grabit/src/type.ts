@@ -29,6 +29,7 @@ export type productType = {
  name: string
  slug: string
  price: number
+ stock: number
  imgUrl: string
  description: string;
  tags: string[]

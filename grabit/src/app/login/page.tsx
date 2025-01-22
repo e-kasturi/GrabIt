@@ -92,7 +92,7 @@ const handleLogin = async(e: React.FormEvent)=>{
                     value={password}
                     onChange={(e)=> setPassword(e.target.value)}
                     type="password"
-                    required=""
+                    required
                     className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
                     placeholder="Enter password"
                   />
