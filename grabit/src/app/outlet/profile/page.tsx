@@ -43,7 +43,7 @@ const UserProfile = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <svg
-          className="animate-spin h-16 w-16 text-blue-400"
+          className="animate-spin h-16 w-16 text-teal-500"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -72,12 +72,12 @@ const UserProfile = () => {
 
   return (
     <>
-      <div className="bg-[#E4FBFF] min-h-screen flex justify-center items-center">
-        <div className="max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden relative pt-24 px-8">
+      <div className="bg-gradient-to-r from-teal-200 to-teal-100 min-h-screen flex justify-center items-center">
+        <div className="max-w-3xl w-full bg-white rounded-xl shadow-xl overflow-hidden relative p-8">
           {users.length > 0 && (
             <>
-              <div className="absolute top-[-60px] left-1/2 transform -translate-x-1/2">
-                <div className="w-32 h-32 border-4 border-white rounded-full overflow-hidden shadow-lg hover:scale-105 transition-all duration-300 ease-in-out">
+              <div className="flex justify-center mb-8">
+                <div className="w-32 h-32 border-4 border-white rounded-full overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
                   <img
                     src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
                     alt="Profile"
@@ -86,99 +86,47 @@ const UserProfile = () => {
                 </div>
               </div>
 
-              <div className="pb-10 text-center">
-                <div className="mt-6 flex justify-center items-center">
-                  <div className="relative w-20 h-20">
-                    <svg className="w-full h-full" viewBox="0 0 36 36">
-                      <path
-                        className="text-gray-300"
-                        strokeWidth="3"
-                        fill="none"
-                        d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                      ></path>
-                      <path
-                        className="text-yellow-400"
-                        strokeDasharray="85, 100"
-                        strokeWidth="3"
-                        fill="none"
-                        d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                      ></path>
-                    </svg>
-                    <div className="absolute inset-0 flex justify-center items-center text-sm font-bold text-gray-800"></div>
+              <div className="text-center mb-8">
+                <div className="text-2xl font-semibold text-teal-600">
+                  {users[0].name}
+                </div>
+                <div className="text-lg text-gray-500">
+                  {users[0].nameOutlet}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white shadow-lg rounded-lg p-6">
+                  <div className="text-sm font-medium text-gray-600">Balance:</div>
+                  <div className="text-xl font-semibold text-teal-600">
+                    {balance !== null
+                      ? `Rp ${balance.toLocaleString()}`
+                      : "Loading..."}
                   </div>
                 </div>
 
-                <div className="mt-10 text-left space-y-6">
-                  {users.map((user) => (
-                    <div
-                      key={user.name}
-                      className="bg-white shadow-md rounded-lg p-6 transform hover:scale-105 transition-all duration-300 ease-in-out"
-                    >
-                      <div className="mb-4">
-                        <span className="text-base font-medium text-gray-600">
-                          Name:
-                        </span>
-                        <span className="text-base text-gray-900 ml-2">
-                          {user.name}
-                        </span>
-                      </div>
-                      <div className="mb-4">
-                        <span className="text-base font-medium text-gray-600">
-                          Balance:
-                        </span>
-                        <span className="text-base text-gray-900 ml-2">
-                          {balance !== null
-                            ? `Rp ${balance.toLocaleString()}`
-                            : "Loading..."}
-                        </span>
-                      </div>
-                      <div className="mb-4">
-                        <span className="text-base font-medium text-gray-600">
-                          Name Outlet:
-                        </span>
-                        <span className="text-base text-gray-900 ml-2">
-                          {user.nameOutlet}
-                        </span>
-                      </div>
-                      <div className="mb-4">
-                        <span className="text-base font-medium text-gray-600">
-                          Email Address:
-                        </span>
-                        <span className="text-base text-gray-900 ml-2">
-                          {user.email}
-                        </span>
-                      </div>
-                      <div className="mb-4">
-                        <span className="text-base font-medium text-gray-600">
-                          Phone Number:
-                        </span>
-                        <span className="text-base text-gray-900 ml-2">
-                          {user.phone}
-                        </span>
-                      </div>
-                      <div className="mb-4">
-                        <span className="text-base font-medium text-gray-600">
-                          Address:
-                        </span>
-                        <span className="text-base text-gray-900 ml-2">
-                          {user.address}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="bg-white shadow-lg rounded-lg p-6">
+                  <div className="text-sm font-medium text-gray-600">Email:</div>
+                  <div className="text-lg text-gray-800">{users[0].email}</div>
                 </div>
 
-                <div className="mt-8 flex justify-center">
-                  <Link href="/outlet/profile/editprofile">
-                    <button className="px-6 py-3 bg-white text-teal-600 text-base rounded-full shadow-md hover:bg-teal-100 transform hover:scale-105 transition-all duration-300 ease-in-out">
-                      Edit Profile
-                    </button>
-                  </Link>
+                <div className="bg-white shadow-lg rounded-lg p-6">
+                  <div className="text-sm font-medium text-gray-600">Phone:</div>
+                  <div className="text-lg text-gray-800">{users[0].phone}</div>
                 </div>
+
+                <div className="bg-white shadow-lg rounded-lg p-6">
+                  <div className="text-sm font-medium text-gray-600">Address:</div>
+                  <div className="text-lg text-gray-800">{users[0].address}</div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <Link href="/outlet/profile/editprofile">
+                  <button className="px-8 py-3 bg-teal-600 text-white text-base rounded-full shadow-md hover:bg-teal-700 transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    Edit Profile
+                  </button>
+                </Link>
               </div>
             </>
           )}

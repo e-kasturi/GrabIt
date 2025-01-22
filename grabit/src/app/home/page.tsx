@@ -83,7 +83,7 @@ const Home = () => {
       <div className="p-4">
         <span>Status Pesanan</span>
         <div className="w-full p-2 bg-[#E4FBFF]">
-          <Link href="/order" className="flex justify-end px-2">
+          <Link href="/outlet/transaction" className="flex justify-end px-2">
             see detail
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +119,7 @@ const Home = () => {
         <div className="w-full p-4 bg-[#E4FBFF]">
           <div className="flex gap-6 justify-center">
             {[
-              { href: "/product", label: "Produk" },
+              { href: "/outlet/product", label: "Produk" },
               { href: "/finance", label: "Keuangan" },
               { href: "/perform", label: "Performa toko" },
               { href: "/helpDesk", label: "Bantuan" },
