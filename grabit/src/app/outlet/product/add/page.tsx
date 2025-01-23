@@ -31,7 +31,10 @@ const AddProducts = () => {
       stock,
     });
 
-    const generatedSlug = name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\-]+/g, "");
+    const generatedSlug = name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\-]+/g, "");
 
     const newProduct = {
       name: finalProductName,
@@ -40,7 +43,7 @@ const AddProducts = () => {
       imgUrl,
       description,
       thumbnail,
-      tags: tags.split(",").map(tag => tag.trim()),
+      tags: tags.split(",").map((tag) => tag.trim()),
       stock: Number(stock),
     };
 
@@ -62,7 +65,7 @@ const AddProducts = () => {
         title: "Product Added",
         text: "The new product has been successfully added!",
         confirmButtonText: "OK",
-        confirmButtonColor: "#3085d6",
+        confirmButtonColor: "#d946ef",
       }).then(() => {
         router.push("/outlet/product");
         router.refresh();
@@ -74,7 +77,7 @@ const AddProducts = () => {
         title: "Error",
         text: "Failed to add product. Please try again later.",
         confirmButtonText: "OK",
-        confirmButtonColor: "#1E3A8A",
+        confirmButtonColor: "#9333ea",
       });
     }
   };
@@ -83,7 +86,7 @@ const AddProducts = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <svg
-          className="animate-spin h-16 w-16 text-blue-400"
+          className="animate-spin h-16 w-16 text-pink-400"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -117,7 +120,6 @@ const AddProducts = () => {
       setFinalProductName(e.target.value);
     }
   };
-  
 
   const handleCustomProductChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomProduct(e.target.value);
@@ -129,9 +131,9 @@ const AddProducts = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full bg-gradient-to-r from-teal-500 to-teal-400">
+    <div className="flex justify-center items-center min-h-screen pt-20 w-full bg-pink-100">
       <div className="w-full max-w-lg p-8 bg-white rounded-xl shadow-lg">
-        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
+        <h2 className="text-3xl font-semibold text-center text-purple-800 mb-6">
           Add New Product
         </h2>
         <button
@@ -139,28 +141,32 @@ const AddProducts = () => {
             router.back();
             router.refresh();
           }}
-          className="mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="mb-4 text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
         >
           Back
         </button>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Product Name</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Product Name
+          </label>
           <input
             type="text"
             value={selectedProduct}
             onChange={handleProductChange}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
             placeholder="Enter Name Product"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Stock</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Stock
+          </label>
           <input
             type="text"
             value={stock}
             onChange={(e) => setStock(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
             placeholder="Enter Stock Product"
           />
@@ -176,7 +182,7 @@ const AddProducts = () => {
             <select
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
             >
               <option value="">Select a Tags</option>
               <option value="Men">Men</option>
@@ -191,7 +197,7 @@ const AddProducts = () => {
                 type="text"
                 value={customProduct}
                 onChange={handleCustomProductChange}
-                className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                 placeholder="Enter custom product tags"
               />
             )}
@@ -210,7 +216,7 @@ const AddProducts = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
-              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Describe the product"
             />
           </div>
@@ -229,7 +235,7 @@ const AddProducts = () => {
               value={price}
               onChange={handlePriceChange}
               required
-              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Enter price"
             />
           </div>
@@ -248,7 +254,7 @@ const AddProducts = () => {
               value={imgUrl}
               onChange={handleImgUrl}
               required
-              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
               placeholder="Enter image URL"
             />
           </div>
@@ -257,7 +263,7 @@ const AddProducts = () => {
           <div className="mt-6">
             <button
               type="submit"
-              className="w-full py-3 bg-teal-500 text-white rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-300"
+              className="w-full py-3 bg-pink-500 text-white rounded-lg shadow-md hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-300"
             >
               Add Product
             </button>

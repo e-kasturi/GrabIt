@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-
 const EditProduct = () => {
   const router = useRouter();
   const { slug } = useParams();
@@ -29,7 +28,7 @@ const EditProduct = () => {
   useEffect(() => {
     const outletId = Cookies.get("outletId");
     if (outletId) {
-        setProduct((prevProduct) => ({
+      setProduct((prevProduct) => ({
         ...prevProduct,
         outletId: outletId,
       }));
@@ -65,7 +64,7 @@ const EditProduct = () => {
         [name]: numericValue,
       }));
     } else {
-        setProduct((prevProduct) => ({
+      setProduct((prevProduct) => ({
         ...prevProduct,
         [name]: value,
       }));
@@ -124,7 +123,7 @@ const EditProduct = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <svg
-          className="animate-spin h-10 w-10 text-blue-500"
+          className="animate-spin h-10 w-10 text-purple-500"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -148,27 +147,26 @@ const EditProduct = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-4">
+    <div className="max-w-4xl mx-auto p-8 mt-20 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-semibold text-purple-800 mb-4">
         Edit Product
       </h1>
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-pink-500 mb-4">{error}</div>}
 
       <button
         onClick={() => {
           router.back();
           router.refresh();
         }}
-        className="mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="mb-4 text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
       >
-        {" "}
-        Back{" "}
+        Back
       </button>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="name" className="block text-gray-700">
-          product Name
+            Product Name
           </label>
           <input
             type="text"
@@ -182,8 +180,8 @@ const EditProduct = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700">
-          Description
+          <label htmlFor="description" className="block text-gray-700">
+            Description
           </label>
           <input
             type="text"
@@ -197,7 +195,7 @@ const EditProduct = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="duration" className="block text-gray-700">
+          <label htmlFor="stock" className="block text-gray-700">
             Stock
           </label>
           <input
@@ -228,7 +226,7 @@ const EditProduct = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-3 rounded"
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded"
         >
           Update Product
         </button>
