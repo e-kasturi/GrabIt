@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2"; 
+import Swal from "sweetalert2";
 
 const UpdateProfile = () => {
   const [email, setEmail] = useState("");
@@ -66,7 +66,6 @@ const UpdateProfile = () => {
       const data = await response.json();
 
       if (response.ok) {
-
         Swal.fire({
           title: "Success!",
           text: data.message,
@@ -77,7 +76,6 @@ const UpdateProfile = () => {
           router.push("/outlet/profile");
         });
       } else {
-
         Swal.fire({
           title: "Error!",
           text: data.message,
@@ -103,7 +101,7 @@ const UpdateProfile = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <svg
-          className="animate-spin h-16 w-16 text-blue-400"
+          className="animate-spin h-16 w-16 text-pink-500"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -127,66 +125,66 @@ const UpdateProfile = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
-      <h1 className="text-3xl font-bold text-center mb-6 text-teal-600">Update Profile</h1>
+    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8 mt-20">
+      <h1 className="text-3xl font-bold text-center mb-6 text-pink-600">Update Profile</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-purple-600">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-sm font-medium text-purple-600">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             placeholder="Leave blank to keep current password"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Your Name</label>
+          <label className="block text-sm font-medium text-purple-600">Your Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Name Outlet</label>
+          <label className="block text-sm font-medium text-purple-600">Name Outlet</label>
           <input
             type="text"
             value={outletName}
             onChange={(e) => setOutletName(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Address</label>
+          <label className="block text-sm font-medium text-purple-600">Address</label>
           <input
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Phone</label>
+          <label className="block text-sm font-medium text-purple-600">Phone</label>
           <input
             type="text"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 block w-full px-4 py-3 border-2 border-teal-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="mt-1 block w-full px-4 py-3 border-2 border-pink-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             required
           />
         </div>
@@ -195,7 +193,7 @@ const UpdateProfile = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+            className="w-full px-6 py-3 bg-pink-500 text-white font-semibold rounded-lg hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-200"
           >
             {loading ? "Updating..." : "Update Profile"}
           </button>
