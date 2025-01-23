@@ -15,6 +15,7 @@
     "@react-oauth/google": "^0.12.1",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.7",
+    "framer-motion": "^12.0.1",
     "google-auth-library": "^9.15.0",
     "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
@@ -23,6 +24,7 @@
     "next": "14.2.20",
     "react": "^18",
     "react-dom": "^18",
+    "react-icons": "^5.4.0",
     "sweetalert2": "^11.15.10",
     "zod": "^3.24.1"
   },
