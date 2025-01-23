@@ -110,19 +110,8 @@ const handleLogin = async(e: React.FormEvent)=>{
                   </div>):("Login")}
                 </button>
               </div>
-              <div className="my-4 flex items-center gap-4">
-                <hr className="w-full border-gray-300" />
-                <p className="text-sm text-gray-800 text-center">or</p>
-                <hr className="w-full border-gray-300" />
-              </div>
-              <div className="flex justify-center !mt-8">
-                <button
-                  type="button"
-                  className=" w-80 py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-[#04A8C1] hover:bg-[#00869A] focus:outline-none"
-                >
-                  Google
-                </button>
-              </div>
+              
+          
               <p className="text-gray-500 text-sm text-center">
                 Don't have an account?
                 <Link   href="/register"

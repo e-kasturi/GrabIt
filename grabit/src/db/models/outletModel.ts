@@ -3,6 +3,7 @@ import { database } from "../config/config";
 import { outletType } from "@/type";
 import { hashPass } from "@/helpers/bcrypt";
 import { ObjectId } from "mongodb";
+import { InsertOneResult } from "mongodb"; 
 
 const outletSchema = z.object({
   name: z.string().min(1, "Name is required."),
