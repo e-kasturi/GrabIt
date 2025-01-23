@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from 'react';
 
@@ -15,26 +15,26 @@ export default function GeminiChat(): JSX.Element {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     setMessages((prev) => [...prev, { sender: 'user', text: prompt }]);
     setPrompt(''); 
-  
+
     try {
       const res = await fetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
-  
+
       if (!res.ok) {
         throw new Error(`API Error: ${res.statusText}`);
       }
-  
+
       const data = await res.json();
       if (!data || !data.text) {
         throw new Error('No valid response from Gemini API');
       }
-  
+
       setMessages((prev) => [...prev, { sender: 'gemini', text: data.text }]);
     } catch (error: any) {
       console.error('Error:', error.message);
@@ -50,19 +50,20 @@ export default function GeminiChat(): JSX.Element {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        height: '100vh', 
-        backgroundColor: '#f7f9fc',
+        height: 'calc(100vh - 80px)', 
+        backgroundColor: '#fff',
         padding: '20px',
         fontFamily: 'Arial, sans-serif',
+        marginTop: '80px',
       }}
     >
-      <h2 style={{ color: '#333', textAlign: 'center' }}>Gemini Chat</h2>
+      <h2 style={{ color: '#6a0dad', textAlign: 'center' }}>GrabIt Chat</h2>
 
       {/* Tampilan pesan chat */}
       <div
         style={{
-          flex: 1, 
-          backgroundColor: '#ffffff',
+          flex: 1,
+          backgroundColor: '#ffe4e1', 
           overflowY: 'auto',
           padding: '15px',
           borderRadius: '10px',
@@ -80,7 +81,7 @@ export default function GeminiChat(): JSX.Element {
           >
             <span
               style={{
-                backgroundColor: message.sender === 'user' ? '#007bff' : '#f0f0f0',
+                backgroundColor: message.sender === 'user' ? '#6a0dad' : '#f0f0f0',
                 color: message.sender === 'user' ? 'white' : 'black',
                 padding: '12px 18px',
                 borderRadius: '15px',
@@ -98,7 +99,7 @@ export default function GeminiChat(): JSX.Element {
 
       {/* Tampilkan indikator loading jika sedang memproses */}
       {isLoading && (
-        <div style={{ textAlign: 'center', color: '#007bff', marginBottom: '15px' }}>
+        <div style={{ textAlign: 'center', color: '#ff69b4', marginBottom: '15px' }}>
           <span>Loading...</span>
         </div>
       )}
@@ -126,7 +127,7 @@ export default function GeminiChat(): JSX.Element {
           type="submit"
           style={{
             padding: '12px 18px',
-            backgroundColor: '#007bff',
+            backgroundColor: '#ff69b4', // Pink untuk tombol
             color: 'white',
             border: 'none',
             borderRadius: '15px',
@@ -135,8 +136,8 @@ export default function GeminiChat(): JSX.Element {
             transition: 'background-color 0.3s ease',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0056b3')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007bff')}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ff1493')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ff69b4')}
         >
           Send
         </button>

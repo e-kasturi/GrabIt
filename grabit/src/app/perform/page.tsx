@@ -107,8 +107,8 @@ export default function StorePerformance() {
             {
               label: `Penjualan (${timePeriod})`,
               data: chartData,
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              borderColor: "rgba(75, 192, 192, 1)",
+              backgroundColor: "rgba(128, 0, 128, 0.2)", 
+              borderColor: "rgba(255, 20, 147, 1)", 
               borderWidth: 2,
             },
           ],
@@ -135,7 +135,7 @@ export default function StorePerformance() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <svg className="animate-spin h-16 w-16 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg className="animate-spin h-16 w-16 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
         </svg>
@@ -144,18 +144,18 @@ export default function StorePerformance() {
   }
 
   return (
-    <div className="p-4 flex flex-col items-center justify-center mt-16">
-      <span className="text-xl font-bold mb-4">Performa Toko</span>
+    <div className="p-4 flex flex-col items-center justify-center mt-20 bg-pink-50 min-h-screen">
+      <span className="text-xl font-bold mb-4 text-purple-700">Performa Toko</span>
 
       <div className="bg-white p-6 rounded-lg shadow-md w-full sm:w-3/4 lg:w-1/2 mb-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">Summary</h2>
+        <h2 className="text-xl font-semibold text-purple-700 mb-4">Summary</h2>
         <div className="flex justify-between border-b border-gray-200 py-2">
           <span className="font-medium text-gray-600">Total Transactions:</span>
-          <span className="text-gray-800">{reportData?.totalTransaction}</span>
+          <span className="text-purple-700">{reportData?.totalTransaction}</span>
         </div>
         <div className="flex justify-between border-b border-gray-200 py-2">
           <span className="font-medium text-gray-600">Total Amount:</span>
-          <span className="text-gray-800">{reportData?.totalPrice}</span>
+          <span className="text-purple-700">{reportData?.totalPrice}</span>
         </div>
       </div>
 
@@ -168,7 +168,7 @@ export default function StorePerformance() {
             id="timePeriod"
             value={timePeriod}
             onChange={(e) => setTimePeriod(e.target.value as TimePeriod)}
-            className="border rounded-md px-4 py-2 text-sm"
+            className="border rounded-md px-4 py-2 text-sm bg-white"
           >
             <option value="Hari">Per Hari</option>
             <option value="Minggu">Per Minggu</option>
@@ -186,7 +186,7 @@ export default function StorePerformance() {
               id="month"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="border rounded-md px-4 py-2 text-sm"
+              className="border rounded-md px-4 py-2 text-sm bg-white"
             >
               {labels.Bulan.map((month, index) => (
                 <option key={index} value={index}>
@@ -206,7 +206,7 @@ export default function StorePerformance() {
               id="year"
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="border rounded-md px-4 py-2 text-sm"
+              className="border rounded-md px-4 py-2 text-sm bg-white"
             >
               {labels.Tahun.map((year) => (
                 <option key={year} value={year}>
@@ -218,30 +218,12 @@ export default function StorePerformance() {
         )}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-32">
-          <svg
-            className="animate-spin h-12 w-12 text-teal-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8h8a8 8 0 11-16 0z"
-            ></path>
-          </svg>
+      <div className="w-full lg:w-1/2">
+        <span className="text-lg block text-center mb-2 text-purple-700">Grafik Penjualan</span>
+        <div className="relative" style={{ height: "300px" }}>
+          <canvas ref={chartRef} className="w-full h-full" />
         </div>
-      ) : (
-        <div className="w-full lg:w-1/2">
-          <span className="text-lg block text-center mb-2">Grafik Penjualan</span>
-          <div className="relative" style={{ height: "300px" }}>
-            <canvas ref={chartRef} className="w-full h-full" />
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
