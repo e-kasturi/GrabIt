@@ -14,6 +14,7 @@
     "@react-google-maps/api": "^2.20.5",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.7",
+    "google-auth-library": "^9.15.0",
     "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",

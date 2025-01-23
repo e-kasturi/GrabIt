@@ -1,47 +1,48 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    console.log('Received prompt:', body.prompt);
+    const { prompt } = await request.json();
 
-    if (!body.prompt || typeof body.prompt !== 'string') {
-      return NextResponse.json(
-        { error: "Prompt harus berupa string" },
-        { status: 400 }
-      );
-    }
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    };
 
-    console.log('Calling Gemini API with URL:', process.env.GEMINI_API_URL);
-
-    const geminiResponse = await fetch(`${process.env.GEMINI_API_URL}`, {
+    const apiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAxGAeHZIXqLyYYKUfI48eSt8Q7RWPxlQI', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`, 
       },
-      body: JSON.stringify({
-        prompt: body.prompt || process.env.DEFAULT_PROMPT || "Berikan teks default untuk di-generate",
-      }),
+      body: JSON.stringify(requestBody),
     });
 
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error(`Gemini API Error: ${errorText}`);
-      throw new Error(`Gemini API Error: ${geminiResponse.statusText}`);
+    if (!apiResponse.ok) {
+      const errorData = await apiResponse.json();
+      throw new Error(`Gemini API Error: ${errorData.error.message}`);
     }
 
-    const data = await geminiResponse.json();
+    const data = await apiResponse.json();
 
-    console.log('Received data from Gemini API:', data);
+    console.log('Gemini API Response:', data);
 
-    return NextResponse.json({ text: data.text });
-  } catch (error) {
-    console.error("Error connecting to Gemini API:", error);
 
-    return NextResponse.json(
-      { error: error.message || "Terjadi kesalahan saat menghubungi Gemini API" },
-      { status: 500 }
-    );
+    const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (responseText) {
+      return NextResponse.json({ text: responseText });
+    } else {
+      throw new Error('No valid response from Gemini API');
+    }
+
+  } catch (error: any) {
+    console.error('Error connecting to Gemini API:', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
