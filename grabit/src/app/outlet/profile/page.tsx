@@ -43,7 +43,7 @@ const UserProfile = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <svg
-          className="animate-spin h-16 w-16 text-teal-500"
+          className="animate-spin h-16 w-16 text-pink-500"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ const UserProfile = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-teal-200 to-teal-100 min-h-screen flex justify-center items-center">
+      <div className="bg-gradient-to-r from-pink-200 to-purple-200 min-h-screen flex justify-center items-center">
         <div className="max-w-3xl w-full bg-white rounded-xl shadow-xl overflow-hidden relative p-8">
           {users.length > 0 && (
             <>
@@ -87,18 +87,18 @@ const UserProfile = () => {
               </div>
 
               <div className="text-center mb-8">
-                <div className="text-2xl font-semibold text-teal-600">
+                <div className="text-2xl font-semibold text-pink-600">
                   {users[0].name}
                 </div>
-                <div className="text-lg text-gray-500">
+                <div className="text-lg text-purple-500">
                   {users[0].nameOutlet}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                 <div className="bg-white shadow-lg rounded-lg p-6">
-                  <div className="text-sm font-medium text-gray-600">Balance:</div>
-                  <div className="text-xl font-semibold text-teal-600">
+                  <div className="text-sm font-medium text-purple-500">Balance:</div>
+                  <div className="text-xl font-semibold text-pink-600">
                     {balance !== null
                       ? `Rp ${balance.toLocaleString()}`
                       : "Loading..."}
@@ -106,24 +106,24 @@ const UserProfile = () => {
                 </div>
 
                 <div className="bg-white shadow-lg rounded-lg p-6">
-                  <div className="text-sm font-medium text-gray-600">Email:</div>
+                  <div className="text-sm font-medium text-purple-500">Email:</div>
                   <div className="text-lg text-gray-800">{users[0].email}</div>
                 </div>
 
                 <div className="bg-white shadow-lg rounded-lg p-6">
-                  <div className="text-sm font-medium text-gray-600">Phone:</div>
+                  <div className="text-sm font-medium text-purple-500">Phone:</div>
                   <div className="text-lg text-gray-800">{users[0].phone}</div>
                 </div>
 
                 <div className="bg-white shadow-lg rounded-lg p-6">
-                  <div className="text-sm font-medium text-gray-600">Address:</div>
+                  <div className="text-sm font-medium text-purple-500">Address:</div>
                   <div className="text-lg text-gray-800">{users[0].address}</div>
                 </div>
               </div>
 
               <div className="flex justify-center">
                 <Link href="/outlet/profile/editprofile">
-                  <button className="px-8 py-3 bg-teal-600 text-white text-base rounded-full shadow-md hover:bg-teal-700 transform hover:scale-105 transition-all duration-300 ease-in-out">
+                  <button className="px-8 py-3 bg-pink-600 text-white text-base rounded-full shadow-md hover:bg-pink-700 transform hover:scale-105 transition-all duration-300 ease-in-out">
                     Edit Profile
                   </button>
                 </Link>
