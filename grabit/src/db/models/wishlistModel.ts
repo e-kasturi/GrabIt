@@ -3,20 +3,26 @@ import { database } from "../config/config";
 import { ObjectId } from "mongodb";
 
 const wishlistSchema = z.object({
-    userId: z.union([z.string(), z.instanceof(ObjectId)]),
-    productId: z.union([z.string(), z.instanceof(ObjectId)]),
-  });
-  
+  userId: z.union([z.string(), z.instanceof(ObjectId)]),
+  productId: z.union([z.string(), z.instanceof(ObjectId)]),
+});
+
+type WishlistFilter = {
+    userId?: ObjectId;
+    productId?: ObjectId;
+  };
 
 type WishlistType = z.infer<typeof wishlistSchema>;
 
 class WishlistModel {
+
   static collection() {
     return database.collection("wishlists");
   }
 
+ 
   static async create(newWishlist: WishlistType) {
-    wishlistSchema.parse(newWishlist);
+    wishlistSchema.parse(newWishlist); 
     newWishlist.userId = new ObjectId(newWishlist.userId);
     newWishlist.productId = new ObjectId(newWishlist.productId);
 
@@ -63,6 +69,11 @@ class WishlistModel {
     return await this.collection().aggregate(agg).toArray();
   }
 
+  static async findByProductId(productId: string) {
+    const objectId = new ObjectId(productId);
+    return await this.collection().find({ productId: objectId }).toArray();
+  }
+
   static async deleteById(id: string) {
     const objectId = new ObjectId(id);
     return await this.collection().deleteOne({ _id: objectId });
@@ -78,9 +89,17 @@ class WishlistModel {
     });
   }
 
-  static async findByProductId(productId: string) {
-    const objectId = new ObjectId(productId);
-    return await this.collection().find({ productId: objectId }).toArray();
+ static async find(query: Record<string, any>) {
+    const filter: WishlistFilter = {}; 
+
+    if (query.userId) {
+      filter.userId = new ObjectId(query.userId);  
+    }
+    if (query.productId) {
+      filter.productId = new ObjectId(query.productId);  
+    }
+
+    return await this.collection().find(filter).toArray();
   }
 }
 

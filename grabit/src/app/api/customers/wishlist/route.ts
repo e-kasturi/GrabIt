@@ -39,3 +39,36 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET(request: NextRequest) {
+    const userId = request.headers.get("x-user-id");  
+  
+    if (!userId) {
+      return NextResponse.json(
+        { error: "userId is required" },
+        { status: 400 }
+      );
+    }
+  
+    try {
+      const wishlistItems = await WishlistModel.find({ userId });
+  
+      if (wishlistItems.length === 0) {
+        return NextResponse.json(
+          { message: "No items found in wishlist" },
+          { status: 404 }
+        );
+      }
+  
+      return NextResponse.json(
+        { wishlist: wishlistItems },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch wishlist" },
+        { status: 500 }
+      );
+    }
+  }

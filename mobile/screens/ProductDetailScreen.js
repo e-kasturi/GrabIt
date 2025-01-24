@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } fr
 import { baseUrl } from "../configs/baseUrl";
 import Icon from 'react-native-vector-icons/FontAwesome';  // Import FontAwesome icon
 
-const ProductDetailScreen = ({ route }) => {
+const ProductDetailScreen = ({ route, navigation }) => {
   const { product } = route.params;
   const slug = product?.slug;
 
@@ -60,6 +60,7 @@ const ProductDetailScreen = ({ route }) => {
       if (response.ok) {
         setIsInWishlist(!isInWishlist);  // Toggle the wishlist state
         console.log(`Product ${isInWishlist ? 'removed from' : 'added to'} wishlist`);
+        navigation.navigate('WishlistScreen');  // Navigate to WishlistScreen
       } else {
         console.error('Failed to update wishlist', responseBody);
         alert('Failed to update wishlist');
