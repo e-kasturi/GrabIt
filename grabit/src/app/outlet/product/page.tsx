@@ -102,7 +102,7 @@ const ProductsPage = () => {
   }
 
   return (
-    <div className="products-page py-12 px-6 bg-pink-100 mt-16"> {/* Tambahkan margin top */}
+    <div className="products-page py-12 px-6 bg-pink-100 mt-16"> 
       <h2 className="text-3xl font-semibold text-center text-pink-600 mb-8">
         Products List
       </h2>

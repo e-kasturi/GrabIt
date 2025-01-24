@@ -2,10 +2,10 @@ import TransactionModel from "@/db/models/transaksiModel"
 
 
 export async function POST(request: Request) {
-    const userId = request.headers.get("x-user-id") as string; // Ambil userId dari header
-    const body = await request.json(); // Ambil body dari request
+    const userId = request.headers.get("x-user-id") as string; 
+    const body = await request.json(); 
   
-    // Pastikan outletId juga ada di dalam body atau request
+
     if (!userId || !body.outletId) {
       return new Response(
         JSON.stringify({ error: "UserId or OutletId is missing" }),
@@ -13,11 +13,10 @@ export async function POST(request: Request) {
       );
     }
   
-    // Menggabungkan userId dan outletId ke dalam body
     await TransactionModel.create({
       userId,
-      outletId: body.outletId,  // Pastikan outletId ada di body
-      ...body, // Tambahkan data lain dari body ke dalam create
+      outletId: body.outletId,  
+      ...body, 
     });
   
     return new Response(
