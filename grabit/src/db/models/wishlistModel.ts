@@ -8,19 +8,17 @@ const wishlistSchema = z.object({
 });
 
 type WishlistFilter = {
-    userId?: ObjectId;
-    productId?: ObjectId;
-  };
+  userId?: ObjectId;
+  productId?: ObjectId;
+};
 
 type WishlistType = z.infer<typeof wishlistSchema>;
 
 class WishlistModel {
-
   static collection() {
     return database.collection("wishlists");
   }
 
- 
   static async create(newWishlist: WishlistType) {
     wishlistSchema.parse(newWishlist); 
     newWishlist.userId = new ObjectId(newWishlist.userId);
@@ -89,7 +87,20 @@ class WishlistModel {
     });
   }
 
- static async find(query: Record<string, any>) {
+  static async deleteOne(query: Record<string, any>) {
+    const filter: WishlistFilter = {};
+
+    if (query.userId) {
+      filter.userId = new ObjectId(query.userId);  
+    }
+    if (query.productId) {
+      filter.productId = new ObjectId(query.productId);  
+    }
+
+    return await this.collection().deleteOne(filter);
+  }
+
+  static async find(query: Record<string, any>) {
     const filter: WishlistFilter = {}; 
 
     if (query.userId) {
@@ -100,6 +111,32 @@ class WishlistModel {
     }
 
     return await this.collection().find(filter).toArray();
+  }
+
+  static async findOne(query: Record<string, any>) {
+    const filter: WishlistFilter = {};
+
+    if (query.userId) {
+      filter.userId = new ObjectId(query.userId);  
+    }
+    if (query.productId) {
+      filter.productId = new ObjectId(query.productId);  
+    }
+
+    return await this.collection().findOne(filter);
+  }
+
+  static async getProductById(productId: string) {
+    const objectId = new ObjectId(productId);
+    console.log('Searching for product with ID:', objectId); 
+
+    const product = await database.collection("products").findOne({ _id: objectId });
+
+    if (!product) {
+        console.log('Product not found'); 
+    }
+
+    return product;
   }
 }
 

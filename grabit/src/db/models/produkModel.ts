@@ -104,6 +104,11 @@ class ProductModel {
     console.log("objectId", objectId);
     return await this.collection().find({ outletId: objectId }).toArray();
   }
+
+  static async find(query: Record<string, any>) {
+    return await this.collection().find(query).toArray();
+  }
+
 }
 
 export default ProductModel;

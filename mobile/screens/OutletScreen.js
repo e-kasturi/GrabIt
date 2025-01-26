@@ -14,21 +14,29 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { baseUrl } from "../configs/baseUrl";
 
-const OutletScreen = () => {
+const OutletScreen = ({ route }) => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [wishlist, setWishlist] = useState([]);
+  const { product } = route.params || {};
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(`${baseUrl}/api/customers/product`);
         const data = await response.json();
-        setProducts(data);
+
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          console.error("Unexpected response format:", data);
+          setProducts([]);
+        }
       } catch (error) {
         console.error("Failed to fetch products:", error);
+        Alert.alert("Error", "Failed to fetch products");
       } finally {
         setLoading(false);
       }
@@ -43,45 +51,69 @@ const OutletScreen = () => {
     fetchWishlist();
   }, []);
 
-  const saveWishlistToStorage = async (wishlist) => {
-    try {
-      await AsyncStorage.setItem("wishlist", JSON.stringify(wishlist));
-    } catch (error) {
-      console.error("Failed to save wishlist to storage:", error);
-    }
-  };
-
   const loadWishlistFromStorage = async () => {
     try {
-      const savedWishlist = await AsyncStorage.getItem("wishlist");
-      return savedWishlist ? JSON.parse(savedWishlist) : [];
+      const storedWishlist = await AsyncStorage.getItem("wishlist");
+      if (storedWishlist) {
+        return JSON.parse(storedWishlist);
+      }
+      return [];
     } catch (error) {
-      console.error("Failed to load wishlist from storage:", error);
+      console.error("Failed to load wishlist:", error);
       return [];
     }
   };
 
-  const toggleWishlist = async (product) => {
-    let updatedWishlist;
-    if (wishlist.some((item) => item.slug === product.slug)) {
-      updatedWishlist = wishlist.filter((item) => item.slug !== product.slug);
-      Alert.alert("Wishlist", "Produk telah dihapus dari wishlist.");
-    } else {
-      updatedWishlist = [...wishlist, product];
-      Alert.alert("Wishlist", "Produk berhasil ditambahkan ke wishlist!");
+  const handleWishlistToggle = async (productId) => {
+    if (!productId) {
+      console.error("No productId provided!");
+      return;
     }
 
-    setWishlist(updatedWishlist);
-    await saveWishlistToStorage(updatedWishlist);
-  };
+    const isProductInWishlist = wishlist.some((item) => item._id === productId);
 
-  const isInWishlist = (product) => {
-    return wishlist.some((item) => item.slug === product.slug);
+    try {
+      const method = isProductInWishlist ? "DELETE" : "POST";
+      const response = await fetch(`${baseUrl}/api/customers/wishlist`, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId: productId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Update UI based on success
+        setWishlist((prevWishlist) =>
+          isProductInWishlist
+            ? prevWishlist.filter((item) => item._id !== productId)
+            : [...prevWishlist, { _id: productId }]
+        );
+      } else {
+        console.error("Failed to update wishlist:", result);
+        if (result.error === "Product not found in wishlist") {
+          Alert.alert("Error", "Produk tidak ditemukan di wishlist.");
+        } else if (result.error === "Product is already in the wishlist") {
+          Alert.alert("Error", "Produk sudah ada di wishlist.");
+        } else {
+          Alert.alert("Error", "Terjadi kesalahan saat memperbarui wishlist.");
+        }
+      }
+    } catch (error) {
+      console.error("Error in wishlist toggle:", error);
+      Alert.alert("Error", "Terjadi kesalahan jaringan.");
+    }
   };
 
   const handleProductClick = (product) => {
     navigation.navigate("ProductDetail", { product });
   };
+
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -93,7 +125,7 @@ const OutletScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Search and Chat Section */}
+      {/* Search Section */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -118,19 +150,25 @@ const OutletScreen = () => {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.adScrollView}>
           <View style={styles.adItem}>
             <Image
-              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res92b2c6c4c1a81517317dc888979411dbfr.jpg' }}
+              source={{
+                uri: "https://im.uniqlo.com/global-cms/spa/res92b2c6c4c1a81517317dc888979411dbfr.jpg",
+              }}
               style={styles.adImage}
             />
           </View>
           <View style={styles.adItem}>
             <Image
-              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/resaec93c74de01c9d8b3fdb02034fd2d31fr.jpg' }}
+              source={{
+                uri: "https://im.uniqlo.com/global-cms/spa/resaec93c74de01c9d8b3fdb02034fd2d31fr.jpg",
+              }}
               style={styles.adImage}
             />
           </View>
           <View style={styles.adItem}>
             <Image
-              source={{ uri: 'https://im.uniqlo.com/global-cms/spa/res3f2b5592a5b29eb399cfbcbb38777bb9fr.jpg' }}
+              source={{
+                uri: "https://im.uniqlo.com/global-cms/spa/res3f2b5592a5b29eb399cfbcbb38777bb9fr.jpg",
+              }}
               style={styles.adImage}
             />
           </View>
@@ -139,37 +177,51 @@ const OutletScreen = () => {
 
       {/* Product Listing */}
       <View style={styles.cardContainer}>
-        {products.map((product) => (
-          <View key={product.slug} style={styles.card}>
-            <TouchableOpacity onPress={() => handleProductClick(product)}>
-              <Image
-                source={{ uri: product.imgUrl }}
-                style={styles.productImage}
-              />
-            </TouchableOpacity>
-            <View style={styles.cardContent}>
-              <View style={styles.productHeader}>
-                <Text style={styles.productName}>{product.name}</Text>
-                <TouchableOpacity
-                  onPress={() => toggleWishlist(product)}
-                  style={styles.heartIconContainer}
-                >
-                  <Icon
-                    name={isInWishlist(product) ? "heart" : "heart-o"}
-                    size={18}
-                    color="red"
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.productDescription}>
-                {product.description}
-              </Text>
-              <Text style={styles.productPrice}>
-                Rp. {product.price.toLocaleString("id-ID")}
-              </Text>
-            </View>
+        {filteredProducts.length === 0 ? (
+          <View style={styles.noProductsContainer}>
+            <Text style={styles.noProductsText}>Produk tidak tersedia.</Text>
           </View>
-        ))}
+        ) : (
+          filteredProducts.map((product) => (
+            <View key={product.slug} style={styles.card}>
+              <TouchableOpacity onPress={() => handleProductClick(product)}>
+                <Image
+                  source={{ uri: product.imgUrl }}
+                  style={styles.productImage}
+                />
+              </TouchableOpacity>
+              <View style={styles.cardContent}>
+                <View style={styles.productHeader}>
+                  <Text style={styles.productName}>{product.name}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleWishlistToggle(product._id)}
+                    style={styles.heartIconContainer}
+                  >
+                    <Icon
+                      name={
+                        wishlist.some((item) => item._id === product._id)
+                          ? "heart"
+                          : "heart-o"
+                      }
+                      size={18}
+                      color={
+                        wishlist.some((item) => item._id === product._id)
+                          ? "red"
+                          : "gray"
+                      }
+                    />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.productDescription}>
+                  {product.description}
+                </Text>
+                <Text style={styles.productPrice}>
+                  Rp. {product.price.toLocaleString("id-ID")}
+                </Text>
+              </View>
+            </View>
+          ))
+        )}
       </View>
     </ScrollView>
   );
@@ -264,11 +316,22 @@ const styles = StyleSheet.create({
   },
   heartIconContainer: {
     marginLeft: 10,
+    padding: 5,
+    borderRadius: 20,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  noProductsContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
+  noProductsText: {
+    fontSize: 16,
+    color: "#7f8c8d",
   },
 });
 

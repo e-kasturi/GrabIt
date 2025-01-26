@@ -6,6 +6,7 @@ export async function PUT(request:Request,
     const { id } = params
     const { products, status} = await request.json()
     try {
+        console.log("PUT", id, products);
         const result =  await TransactionModel.updateTransaction(id, products, status)
         return new Response(
             JSON.stringify({ message: " Transaction update successfully"}),

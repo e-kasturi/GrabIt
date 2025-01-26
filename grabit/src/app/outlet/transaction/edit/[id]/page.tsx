@@ -7,14 +7,12 @@ import { transactionType } from "@/type";
 const EditTransaction = () => {
   const router = useRouter();
   const { id } = useParams();
-  const [products, setProducts] = useState<
-    {
-      _id: string;
-      name: string | undefined;
-      price: number | undefined;
-      qty: number;
-    }[]
-  >([]);
+  const [products, setProducts] = useState<{
+    _id: string;
+    name: string | undefined;
+    price: number | undefined;
+    qty: number;
+  }[]>([]);
 
   const [transactions, setTransactions] = useState({
     _id: "",
@@ -33,7 +31,6 @@ const EditTransaction = () => {
       console.log("Fetching service for id:", id);
       fetch(`/api/outlets/transaction/${id}`)
         .then((res) => res.json())
-
         .then((data: transactionType[]) => {
           if (data) {
             console.log("Transaction data:", data);
@@ -48,16 +45,16 @@ const EditTransaction = () => {
               });
             }
             if (data[0].productDetail && data[0].products) {
-              const newProducts = data[0].productDetail.map((service, idx) => {
+              const newProducts = data[0].productDetail.map((product, idx) => {
                 return {
-                  _id: service._id?.toString() || "",
-                  name: service.name,
-                  price: service.price,
+                  _id: product._id?.toString() || "",
+                  name: product.name,
+                  price: product.price,
                   qty: data[0].products ? data[0].products[idx].quantity : 0,
                 };
               });
 
-              console.log("Services data:", newProducts);
+              console.log("products data:", newProducts);
               setProducts(newProducts);
             }
           }
@@ -75,8 +72,7 @@ const EditTransaction = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { customerName, customerAddress, transactionDate, status } =
-      transactions;
+    const { customerName, customerAddress, transactionDate, status } = transactions;
 
     if (!customerName || !customerAddress || !transactionDate || !status) {
       setError("All fields are required!");
@@ -94,9 +90,9 @@ const EditTransaction = () => {
       })),
     };
 
-    console.log("Updated service data before sending:", updatedTransaction);
+    console.log("Updated product data before sending:", updatedTransaction);
     console.log("products data before sending:", products);
-    // return;
+
     try {
       const response = await fetch(`/api/outlets/transaction/${id}`, {
         method: "PUT",
@@ -149,7 +145,7 @@ const EditTransaction = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
+    <div className="max-w-4xl mx-auto p-8 mt-8">
       <h1 className="text-3xl font-semibold text-gray-800 mb-4">
         Edit Transaction
       </h1>
@@ -161,10 +157,9 @@ const EditTransaction = () => {
           router.back();
           router.refresh();
         }}
-        className="mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="mb-4 text-white bg-pink-500 hover:bg-pink-600 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
       >
-        {" "}
-        Back{" "}
+        Back
       </button>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -180,7 +175,7 @@ const EditTransaction = () => {
             onChange={(e) =>
               setTransactions({ ...transactions, customerName: e.target.value })
             }
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+            className="w-full px-3 py-2 border rounded-lg bg-white text-gray-700 cursor-not-allowed"
             required
           />
         </div>
@@ -201,7 +196,7 @@ const EditTransaction = () => {
                 customerAddress: e.target.value,
               })
             }
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+            className="w-full px-3 py-2 border rounded-lg bg-white text-gray-700 cursor-not-allowed"
             required
           />
         </div>
@@ -222,7 +217,7 @@ const EditTransaction = () => {
                 transactionDate: e.target.value,
               })
             }
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+            className="w-full px-3 py-2 border rounded-lg bg-white text-gray-700 cursor-not-allowed"
             required
           />
         </div>
@@ -238,7 +233,7 @@ const EditTransaction = () => {
             }
             name="status"
             value={transactions.status}
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+            className="w-full px-3 py-2 border rounded-lg bg-white text-gray-700 cursor-not-allowed"
           >
             <option value="belumbayar">Belum Bayar</option>
             <option value="dikemas">Dikemas</option>
@@ -246,20 +241,19 @@ const EditTransaction = () => {
             <option value="selesai">Selesai</option>
             <option value="pengembalian">Pengembalian</option>
             <option value="dibatalkan">Dibatalkan</option>
-            
           </select>
           {products.map((product) => (
             <div key={product._id} className="flex gap-4">
               <div>
                 <label htmlFor="status" className="block text-gray-700">
-                Product Name
+                  Product Name
                 </label>
                 <input
                   readOnly
                   type="text"
                   id="status"
                   value={product.name}
-                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+                  className="w-full px-3 py-2 border rounded-lg bg-white text-gray-700 cursor-not-allowed"
                   required
                 />
               </div>
@@ -272,13 +266,13 @@ const EditTransaction = () => {
                   type="text"
                   id="price"
                   value={product.price}
-                  className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+                  className="w-full px-3 py-2 border rounded-lg bg-white text-gray-700 cursor-not-allowed"
                   required
                 />
               </div>
               <div>
                 <label htmlFor="qty" className="block text-gray-700">
-                  Quantity (kg)
+                  Quantity
                 </label>
                 <input
                   type="text"
@@ -286,7 +280,6 @@ const EditTransaction = () => {
                   value={product.qty}
                   onChange={(e) => {
                     const qty = parseInt(e.target.value || "0", 10);
-                    // console.log(e.target.value);
                     setProducts(
                       products.map((s) =>
                         s._id === product._id ? { ...s, qty } : s
@@ -303,7 +296,7 @@ const EditTransaction = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-3 rounded"
+          className="w-full bg-purple-500 text-white p-3 rounded"
         >
           Update Transaction
         </button>

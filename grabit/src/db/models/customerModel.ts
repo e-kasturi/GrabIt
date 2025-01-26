@@ -3,8 +3,7 @@ import { database } from "../config/config";
 import { customerType } from "@/type";
 import { ObjectId } from "mongodb";
 import { hashPass } from "@/helpers/bcrypt";
-import path from "path";
-import { emitWarning } from "process";
+
 
 const customerSchema = z.object({
     name: z.string().min(3, { message: "Name is required."}).max(50),
@@ -45,13 +44,13 @@ class CustomerModel {
 
     static async findByEmail(email: string) {
         return this.collection().findOne({ email });
-      }
+    }
 
     static async findById(customerId: string) {
         const agg = [
             {
                 $match: {
-                    _id: new ObjectId(customerId)
+                    _id: new ObjectId(customerId),
                 },
             },
             {
@@ -89,7 +88,9 @@ class CustomerModel {
                 }
             }
         ]
-        return this.collection().aggregate(agg).toArray()
+
+        const result = await this.collection().aggregate(agg).toArray();
+        return result.length > 0 ? result[0] : null; 
     }
 
     static async updateProfile(customerId: string, updateData: customerType){
@@ -107,14 +108,14 @@ class CustomerModel {
         const validData = updateSchema.parse(updateData)
         
         const customer = await this.collection().findOne({
-_id: new ObjectId(customerId),
+            _id: new ObjectId(customerId),
         })
         if (!customer) {
             throw new Error("customer not found")
         }
         const updateResult = await this.collection().updateOne({
             _id: new ObjectId(customerId)
-        }, { $set: validData})
+        }, { $set: validData })
 
         if(updateResult.modifiedCount === 0){
             throw new Error("Failed to update profile")
@@ -123,6 +124,12 @@ _id: new ObjectId(customerId),
             _id: new ObjectId(customerId)
         })
     }
+
+    static async findOne(customerId: string) {
+        return this.collection().findOne({
+            _id: new ObjectId(customerId),
+        });
+    }
 }
 
-export default CustomerModel;   
+export default CustomerModel;

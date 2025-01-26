@@ -12,7 +12,7 @@ export const handleLogout = async () => {
     const cookieHeader = cookieStore.toString();
   
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/outlets/transactions/${id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/outlets/transaction/${id}`,
       {
         headers: {
           Cookie: cookieHeader,
@@ -23,14 +23,11 @@ export const handleLogout = async () => {
       }
     );
   
-    console.log("Response status:", response.status);
-  
     if (!response.ok) {
-      throw new Error(`Response status ${response.status}`);
+      throw new Error(`Failed to fetch transaction with ID ${id}`);
     }
   
     const transaction: transactionType[] = await response.json();
-    console.log("Transaction details:", transaction);
     return transaction;
   }
   

@@ -5,16 +5,14 @@ import { transactionType } from "@/type";
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState<transactionType[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<
-    transactionType[]
-  >([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<transactionType[]>([]);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const statusOptions = [
     "all",
-    "belumbayar",
+    "pending",
     "dikemas",
     "dikirim",
     "selesai",
@@ -28,6 +26,7 @@ const TransactionsPage = () => {
         const response = await fetch("/api/outlets/transaction");
         if (!response.ok) throw new Error("Failed to fetch transactions");
         const data = await response.json();
+        console.log(data, ">>> data transaksi");
         setTransactions(data);
         setFilteredTransactions(data);
       } catch (err) {
@@ -41,14 +40,16 @@ const TransactionsPage = () => {
   }, []);
 
   const handleFilterChange = (status: string) => {
+    console.log(status, ">>>> status yang dipilih");
     setActiveFilter(status);
     if (status === "all") {
       setFilteredTransactions(transactions);
     } else {
-      setFilteredTransactions(transactions.filter((t) => t.status === status));
+      const filtered = transactions.filter((t) => t.status === status);
+      console.log(filtered, ">>>> transaksi yang difilter");
+      setFilteredTransactions(filtered);
     }
   };
-  console.log(transactions);
 
   const updateTransactionStatus = async (
     transactionId: string,
@@ -70,11 +71,9 @@ const TransactionsPage = () => {
 
         const result = await response.json();
         console.log(transactions, result, "<<<<<<< response");
-
-        // return;
       }
       const response = await fetch(
-        `/api/outlets/transaction/${transactionId}`,
+        `/api/outlets/transactions/${transactionId}`,
         {
           method: "PATCH",
           headers: {
@@ -111,7 +110,7 @@ const TransactionsPage = () => {
     return (
       <div className="flex justify-center items-center h-screen px-4">
         <svg
-          className="animate-spin h-16 w-16 text-blue-500"
+          className="animate-spin h-16 w-16 text-pink-500"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -135,21 +134,21 @@ const TransactionsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-[95%] mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">
+        <h1 className="text-4xl font-bold text-purple-600 mb-8">
           Transaction List
         </h1>
 
-        <div className="flex flex-wrap gap-2 mb-6 bg-white p-4 rounded-lg shadow">
+        <div className="flex flex-wrap gap-4 mb-6 bg-pink-100 p-4 rounded-lg shadow-lg">
           {statusOptions.map((status) => (
             <button
               key={status}
               onClick={() => handleFilterChange(status)}
               className={`px-6 py-2.5 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
                 activeFilter === status
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-purple-600 text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               {status}
@@ -160,8 +159,8 @@ const TransactionsPage = () => {
         <div className="bg-white shadow-xl rounded-lg border border-gray-200">
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
-              <thead className="bg-white-700 text-black">
-                <tr className="bg-gray-100">
+              <thead className="bg-purple-100 text-black">
+                <tr>
                   <th className="py-4 px-6 text-left text-base font-bold text-gray-800">
                     Status
                   </th>
@@ -178,7 +177,7 @@ const TransactionsPage = () => {
                     Product Detail
                   </th>
                   <th className="py-4 px-6 text-left text-base font-bold text-gray-800">
-                    Aksi
+                    Action
                   </th>
                 </tr>
               </thead>
@@ -186,7 +185,7 @@ const TransactionsPage = () => {
                 {filteredTransactions.map((transaction) => (
                   <tr
                     key={transaction._id}
-                    className="border-b hover:bg-indigo-50 transition-colors"
+                    className="border-b hover:bg-purple-50 transition-colors"
                   >
                     <td className="py-4 px-6 text-sm text-gray-700">
                       <select
@@ -201,7 +200,7 @@ const TransactionsPage = () => {
                         }}
                         className="bg-gray-100 text-sm text-gray-700 p-2 rounded-md"
                       >
-                        <option value="belumbayar">Belum Bayar</option>
+                        <option value="pending">Pending</option>
                         <option value="dikemas">Dikemas</option>
                         <option value="dikirim">Dikirim</option>
                         <option value="selesai">Selesai</option>
@@ -218,6 +217,7 @@ const TransactionsPage = () => {
                         maximumFractionDigits: 0,
                       }).format(transaction.totalAmount)}
                     </td>
+
                     <td className="py-4 px-6 text-sm text-gray-700">
                       {transaction.customerDetail?.length && (
                         <div className="flex flex-col space-y-1">
@@ -258,17 +258,18 @@ const TransactionsPage = () => {
                           </div>
                         ))}
                     </td>
+
                     <td className="py-4 px-6 text-sm text-center">
                       <div className="flex justify-center gap-4">
                         <Link
                           href={`/outlet/transaction/edit/${transaction._id}`}
                         >
-                          <button className="bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-200">
+                          <button className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition duration-200">
                             Edit
                           </button>
                         </Link>
                         <Link href={`/outlet/transaction/${transaction._id}`}>
-                          <button className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-200">
+                          <button className="bg-pink-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-pink-700 transition duration-200">
                             Detail
                           </button>
                         </Link>
