@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 const Home = () => {
   const [users, setUsers] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]); 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -22,8 +23,22 @@ const Home = () => {
       }
     };
 
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("/api/outlets/transaction"); 
+        if (!response.ok) throw new Error("Failed to fetch orders");
+        const data = await response.json();
+        setOrders(data);
+      } catch (err: any) {
+        setError(err.message || "An error occurred");
+      }
+    };
+
     fetchUserProfile();
+    fetchOrders();
   }, []);
+
+  const pendingOrders = orders.filter((order: any) => order.status === "pending");
 
   if (loading) {
     return <div className="text-center text-pink-500">Loading...</div>;
@@ -35,7 +50,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white p-4 justify-between">
-      {/* Konten utama */}
       <div className="flex-1">
         {/* Carousel */}
         <div className="p-4 mx-auto rounded-lg shadow-xl overflow-hidden">
@@ -108,7 +122,7 @@ const Home = () => {
                   key={index}
                   className="flex flex-col justify-center items-center bg-purple-500 text-white text-xl md:w-40 md:h-40 sm:w-32 sm:h-32 rounded-xl shadow-lg transition-all hover:scale-105"
                 >
-                  <span>0</span>
+                  <span>{pendingOrders.length}</span> {/* Menampilkan jumlah pesanan pending */}
                   <span>{status}</span>
                 </div>
               ))}
@@ -119,12 +133,10 @@ const Home = () => {
         <br />
         <div className="w-full p-4 bg-purple-100 rounded-lg shadow-md">
           <div className="flex gap-6 justify-center">
-            {[
-              { href: "/outlet/product", label: "Produk", color: "bg-pink-400" },
-              { href: "/finance", label: "Keuangan", color: "bg-purple-500" },
-              { href: "/perform", label: "Performa toko", color: "bg-pink-400" },
-              { href: "/helpDesk", label: "Bantuan", color: "bg-purple-500" }
-            ].map((menu, index) => (
+            {[{ href: "/outlet/product", label: "Produk", color: "bg-pink-400" },
+            { href: "/finance", label: "Keuangan", color: "bg-purple-500" },
+            { href: "/perform", label: "Performa toko", color: "bg-pink-400" },
+            { href: "/helpDesk", label: "Bantuan", color: "bg-purple-500" }].map((menu, index) => (
               <Link href={menu.href} key={index}>
                 <div className={`flex flex-col justify-center items-center ${menu.color} text-white text-xl md:w-40 md:h-40 sm:w-32 sm:h-32 rounded-xl shadow-lg transition-all hover:scale-105`}>
                   <span>{menu.label}</span>
