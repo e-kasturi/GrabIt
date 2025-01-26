@@ -1,10 +1,10 @@
-"use client";
+"use client"
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const Home = () => {
   const [users, setUsers] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]); 
+  const [transactions, setTransactions] = useState<any[]>([]); 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -23,22 +23,24 @@ const Home = () => {
       }
     };
 
-    const fetchOrders = async () => {
+    const fetchTransactions = async () => {
       try {
         const response = await fetch("/api/outlets/transaction"); 
-        if (!response.ok) throw new Error("Failed to fetch orders");
+        if (!response.ok) throw new Error("Failed to fetch transactions");
         const data = await response.json();
-        setOrders(data);
+        setTransactions(data);
       } catch (err: any) {
         setError(err.message || "An error occurred");
       }
     };
 
     fetchUserProfile();
-    fetchOrders();
+    fetchTransactions(); 
   }, []);
 
-  const pendingOrders = orders.filter((order: any) => order.status === "pending");
+  const pendingOrders = transactions.filter((transaction: any) => transaction.status === "dikemas");
+  const canceledOrders = transactions.filter((transaction: any) => transaction.status === "canceled");
+  const returnedOrders = transactions.filter((transaction: any) => transaction.status === "returned");
 
   if (loading) {
     return <div className="text-center text-pink-500">Loading...</div>;
@@ -101,31 +103,24 @@ const Home = () => {
           <div className="w-full p-4 bg-pink-100 rounded-lg shadow-md">
             <Link href="/outlet/transaction" className="flex justify-end px-2 text-purple-500 hover:text-purple-700 transition duration-300">
               see detail
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
               </svg>
             </Link>
             <div className="flex gap-6 justify-center mt-4">
-              {["Perlu Dikirim", "Pembatalan", "Pengembalian"].map((status, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col justify-center items-center bg-purple-500 text-white text-xl md:w-40 md:h-40 sm:w-32 sm:h-32 rounded-xl shadow-lg transition-all hover:scale-105"
-                >
-                  <span>{pendingOrders.length}</span> {/* Menampilkan jumlah pesanan pending */}
-                  <span>{status}</span>
-                </div>
-              ))}
+              {/* Kategori status pesanan */}
+              <div className="flex flex-col justify-center items-center bg-purple-500 text-white text-xl md:w-40 md:h-40 sm:w-32 sm:h-32 rounded-xl shadow-lg transition-all hover:scale-105">
+                <span>{pendingOrders.length}</span> 
+                <span>Perlu Dikirim</span>
+              </div>
+              <div className="flex flex-col justify-center items-center bg-red-500 text-white text-xl md:w-40 md:h-40 sm:w-32 sm:h-32 rounded-xl shadow-lg transition-all hover:scale-105">
+                <span>{canceledOrders.length}</span> 
+                <span>Pembatalan</span>
+              </div>
+              <div className="flex flex-col justify-center items-center bg-yellow-500 text-white text-xl md:w-40 md:h-40 sm:w-32 sm:h-32 rounded-xl shadow-lg transition-all hover:scale-105">
+                <span>{returnedOrders.length}</span> 
+                <span>Pengembalian</span>
+              </div>
             </div>
           </div>
         </div>
