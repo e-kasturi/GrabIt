@@ -4,7 +4,7 @@ export async function POST(request: Request) {
   const userId = request.headers.get("x-user-id") as string;
   const body = await request.json();
 
-  console.log("Received Body:", body); // Debugging
+  console.log("Received Body:", body);
 
  
   await TransactionModel.create({ userId, body });

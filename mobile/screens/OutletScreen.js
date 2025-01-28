@@ -19,8 +19,8 @@ const OutletScreen = ({ route }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [wishlist, setWishlist] = useState([]);
   const { product } = route.params || {};
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -42,68 +42,42 @@ const OutletScreen = ({ route }) => {
       }
     };
 
-    const fetchWishlist = async () => {
-      const savedWishlist = await loadWishlistFromStorage();
-      setWishlist(savedWishlist);
-    };
-
     fetchProducts();
-    fetchWishlist();
   }, []);
-
-  const loadWishlistFromStorage = async () => {
-    try {
-      const storedWishlist = await AsyncStorage.getItem("wishlist");
-      if (storedWishlist) {
-        return JSON.parse(storedWishlist);
-      }
-      return [];
-    } catch (error) {
-      console.error("Failed to load wishlist:", error);
-      return [];
-    }
-  };
 
   const handleWishlistToggle = async (productId) => {
     if (!productId) {
-      console.error("No productId provided!");
+      console.error("Product ID is undefined");
+      Alert.alert("Error", "Product ID is missing");
       return;
     }
 
-    const isProductInWishlist = wishlist.some((item) => item._id === productId);
-
     try {
-      const method = isProductInWishlist ? "DELETE" : "POST";
       const response = await fetch(`${baseUrl}/api/customers/wishlist`, {
-        method: method,
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productId: productId }),
+        body: JSON.stringify({ productId }),
       });
 
-      const result = await response.json();
+      const responseBody = await response.json();
 
       if (response.ok) {
-        // Update UI based on success
-        setWishlist((prevWishlist) =>
-          isProductInWishlist
-            ? prevWishlist.filter((item) => item._id !== productId)
-            : [...prevWishlist, { _id: productId }]
+        setIsInWishlist(true);
+        Alert.alert(
+          "Success",
+          `Product has been added to your wishlist.`,
+          [{ text: "OK" }]
         );
+        console.log(`Product added to wishlist`);
       } else {
-        console.error("Failed to update wishlist:", result);
-        if (result.error === "Product not found in wishlist") {
-          Alert.alert("Error", "Produk tidak ditemukan di wishlist.");
-        } else if (result.error === "Product is already in the wishlist") {
-          Alert.alert("Error", "Produk sudah ada di wishlist.");
-        } else {
-          Alert.alert("Error", "Terjadi kesalahan saat memperbarui wishlist.");
-        }
+        console.error("Failed to update wishlist", responseBody);
+        Alert.alert("Error", "Product might already be in the wishlist.");
       }
     } catch (error) {
       console.error("Error in wishlist toggle:", error);
-      Alert.alert("Error", "Terjadi kesalahan jaringan.");
+      Alert.alert("Error", "An error occurred while updating the wishlist");
     }
   };
 
@@ -135,7 +109,7 @@ const OutletScreen = ({ route }) => {
         />
         <TouchableOpacity
           style={styles.iconContainer}
-          onPress={() => navigation.navigate("WishlistScreen", { wishlist })}
+          onPress={() => navigation.navigate("WishlistScreen")}
         >
           <Icon name="heart" size={20} color="#555" />
         </TouchableOpacity>
@@ -146,7 +120,9 @@ const OutletScreen = ({ route }) => {
 
       {/* Horizontal Advertisement Section */}
       <View style={styles.adContainer}>
-        <Text style={styles.adText}>Special Offer: Get 20% off on all products!</Text>
+        <Text style={styles.adText}>
+          Special Offer: Get 20% off on all products!
+        </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.adScrollView}>
           <View style={styles.adItem}>
             <Image
@@ -198,17 +174,9 @@ const OutletScreen = ({ route }) => {
                     style={styles.heartIconContainer}
                   >
                     <Icon
-                      name={
-                        wishlist.some((item) => item._id === product._id)
-                          ? "heart"
-                          : "heart-o"
-                      }
+                      name="heart-o"
                       size={18}
-                      color={
-                        wishlist.some((item) => item._id === product._id)
-                          ? "red"
-                          : "gray"
-                      }
+                      color="gray"
                     />
                   </TouchableOpacity>
                 </View>
@@ -226,6 +194,7 @@ const OutletScreen = ({ route }) => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

@@ -93,37 +93,55 @@ class CustomerModel {
         return result.length > 0 ? result[0] : null; 
     }
 
-    static async updateProfile(customerId: string, updateData: customerType){
-        const updateSchema = z.object({
-            name: z.string().min(3).max(50).optional(),
-            email: z.string().email().optional(),
-            address: z.string().min(1).optional(),
-            phone: z
-            .string()
-            .regex(/^\+?\d{10,14}$/).optional(),
-            latitude: z.number().optional(),
-            longitude: z.number().optional(),
-        })
+    static async updateProfile(customerId: string, updateData: customerType) {
+        const updateSchema = z
+  .object({
+    name: z.string().min(3).max(50).optional(),
+    email: z.string().email().optional(),
+    address: z.string().min(1).optional(),
+    phone: z.string().regex(/^\+?\d{10,14}$/).optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    imgUrl: z.string().optional(),
+    password: z.string().min(5).optional(),
+  })
+  .strict();
 
-        const validData = updateSchema.parse(updateData)
-        
+      
+        if (!ObjectId.isValid(customerId)) {
+          throw new Error("Invalid customer ID");
+        }
+    
+        const validData = updateSchema.parse(updateData);
+        console.log("Validated Data:", validData);
+      
         const customer = await this.collection().findOne({
-            _id: new ObjectId(customerId),
-        })
+          _id: new ObjectId(customerId),
+        });
         if (!customer) {
-            throw new Error("customer not found")
+          throw new Error("Customer not found");
         }
-        const updateResult = await this.collection().updateOne({
-            _id: new ObjectId(customerId)
-        }, { $set: validData })
-
-        if(updateResult.modifiedCount === 0){
-            throw new Error("Failed to update profile")
+      
+        const updateResult = await this.collection().updateOne(
+          { _id: new ObjectId(customerId) },
+          { $set: validData }
+        );
+      
+        console.log("Update Result:", updateResult);
+      
+        if (updateResult.modifiedCount === 0) {
+          return { message: "No changes detected, profile remains the same." };
         }
-        return this.collection().findOne({
-            _id: new ObjectId(customerId)
-        })
-    }
+      
+        const updatedCustomer = await this.collection().findOne({
+          _id: new ObjectId(customerId),
+        });
+        if (!updatedCustomer) {
+          throw new Error("Failed to retrieve updated profile");
+        }
+        return updatedCustomer;
+      }
+      
 
     static async findOne(customerId: string) {
         return this.collection().findOne({

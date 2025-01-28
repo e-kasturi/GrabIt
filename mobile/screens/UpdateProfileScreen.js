@@ -18,6 +18,7 @@ export default function UpdateProfileScreen() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [imgUrl, setImgUrl] = useState("");
   const { setIsSignedIn } = useContext(AuthContext);
   const navigation = useNavigation();
 
@@ -30,7 +31,7 @@ export default function UpdateProfileScreen() {
           navigation.navigate("Login");
           return;
         }
-
+  
         const response = await fetch(`${baseUrl}/api/customers/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -39,23 +40,24 @@ export default function UpdateProfileScreen() {
         if (!response.ok) {
           throw new Error("Failed to fetch profile");
         }
-
+  
         const data = await response.json();
         console.log(data, "data 1");
-        
-        setName(data[0].name || '');
-        setEmail(data[0].email || "");
-        setAddress(data[0].address || "");
-        setPhone(data[0].phone || "");
+
+        setName(data.name || '');
+        setEmail(data.email || '');
+        setAddress(data.address || '');
+        setPhone(data.phone || '');
+        setImgUrl(data.imgUrl || '');
       } catch (error) {
         console.error("Error fetching profile:", error);
         Alert.alert("Error", "Failed to fetch profile");
       }
     };
-
+  
     fetchProfile();
   }, [navigation]);
-
+  
   const handleUpdate = async () => {
     if (!name || !email || !address || !phone) {
       Alert.alert("Error", "All fields are required!");
@@ -74,19 +76,21 @@ export default function UpdateProfileScreen() {
           email,
           phone,
           address,
+          imgUrl,
         }),
       });
       if (!response.ok) {
         throw new Error("Failed to update profile");
       }
       Alert.alert("Success", "Profile updated successfully");
-      Keyboard.dismiss()
-      navigation.navigate("Profile");
+      Keyboard.dismiss();
+      navigation.navigate("TabHome", { screen: "Profile" }); 
     } catch (error) {
       console.error("Error updating profile:", error);
       Alert.alert("Error", "Failed to update profile");
     }
   };
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Update Profile</Text>
@@ -108,6 +112,12 @@ export default function UpdateProfileScreen() {
         value={phone}
         onChangeText={setPhone}
       />
+       <TextInput
+        style={styles.input}
+        placeholder="Image"
+        value={imgUrl}
+        onChangeText={setImgUrl}
+      />
       <TextInput
         style={styles.input}
         placeholder="Address"
@@ -124,7 +134,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "rgb(170, 200, 210)",
+    backgroundColor: "#FCE4EC", 
     alignItems: "center",
   },
   title: {
@@ -132,25 +142,34 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
+    color: "#AB47BC", 
     marginBottom: 50,
   },
   input: {
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
     padding: 10,
     marginBottom: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     width: "80%",
+    borderWidth: 1,
+    borderColor: "#CE93D8", 
+    color: "#7B1FA2", 
   },
   update: {
-    backgroundColor: "rgba(247, 249, 249, 0.69)",
-    padding: 5,
-    borderRadius: 5,
+    backgroundColor: "#CE93D8", 
+    padding: 10,
+    borderRadius: 15,
     textAlign: "center",
     fontSize: 18,
     fontWeight: "bold",
-    marginTop: 10,
-    width: "30%",
+    marginTop: 20,
+    width: "50%",
+    color: "#FFFFFF", 
     justifyContent: "center",
     alignContent: "center",
+    shadowColor: "#000", 
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 2, height: 2 },
+    shadowRadius: 5,
   },
 });

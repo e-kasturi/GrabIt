@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { FontAwesome, MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -20,61 +20,95 @@ export default function UserScreen() {
   const { setIsSignedIn } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [financialData, setFinancialData] = useState(null);
 
   const handleOnLogOut = async () => {
     await SecureStore.deleteItemAsync("access_token");
     setIsSignedIn(false);
   };
 
-  const goToOrderHistory = () => {
-    navigation.navigate("OrderHistory");
+  const fetchUserProfile = async () => {
+    const token = await SecureStore.getItemAsync("access_token");
+    if (!token) {
+      Alert.alert("Error", "You are not logged in");
+      setIsSignedIn(false);
+      return;
+    }
+    try {
+      const response = await fetch(`${baseUrl}/api/customers/profile`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          Alert.alert("Session expired", "Please log in again.");
+          setIsSignedIn(false);
+        }
+        throw new Error("Failed to fetch profile");
+      }
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      Alert.alert("Error", "Failed to fetch profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/api/customers/product`);
+      const data = await response.json();
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      Alert.alert("Error", "Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFinancialData = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("access_token");
+      const response = await fetch(`${baseUrl}/api/customers/finance`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch financial data");
+      const data = await response.json();
+      setFinancialData(data);
+    } catch (error) {
+      console.error("Error fetching financial data:", error);
+    }
+  };
+
+  const handleProductClick = (product) => {
+    navigation.navigate("ProductDetail", { product });
   };
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const token = await SecureStore.getItemAsync("access_token");
-      if (!token) {
-        Alert.alert("Error", "You are not logged in");
-        setIsSignedIn(false);
-        return;
-      }
-      try {
-        const response = await fetch(`${baseUrl}/api/customers/profile`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          if (response.status === 401) {
-            Alert.alert("Session expired", "Please log in again.");
-            setIsSignedIn(false);
-            return;
-          }
-          throw new Error("Failed to fetch profile");
-        }
-        const data = await response.json();
-        setUser(data);
-      } catch (error) {
-        Alert.alert("Error", "Failed to fetch profile");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUserProfile();
+    fetchProducts();
+    fetchFinancialData();
   }, []);
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#3498db" />
+      <View style={styles.centeredContainer}>
+        <ActivityIndicator size="large" color="#8E44AD" />
       </View>
     );
   }
 
   if (!user) {
     return (
-      <View style={styles.container}>
+      <View style={styles.centeredContainer}>
         <Text>Error: No user data available</Text>
       </View>
     );
@@ -82,73 +116,76 @@ export default function UserScreen() {
 
   return (
     <ScrollView style={styles.scrollContainer}>
-      {/* Header Section */}
       <View style={styles.header}>
-        {/* Profile Info */}
         <View style={styles.profileInfo}>
           <Image
-            source={{
-              uri: user?.imgUrl || "https://your-image-url.com/default-image.jpg",
-            }}
+            source={{ uri: user.imgUrl || "https://your-image-url.com/default-image.jpg" }}
             style={styles.profileImage}
           />
-          <View style={styles.profileTextContainer}>
-            <Text style={styles.userName}>{user[0]?.name || "User Name"}</Text>
-            <Text style={styles.userEmail}>
-              {user[0]?.email || "user@example.com"}
-            </Text>
+          <View style={styles.profileDetails}>
+            <Text style={styles.userName}>{user.name}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("UpdateProfile")}>
+              <Text style={styles.editProfile}>Edit Profile</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        {/* Chat and Heart Icons */}
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="heart-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("WishlistScreen")}>
+          <Ionicons name="heart-outline" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
-      {/* Pesanan Saya Section */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Pesanan Saya</Text>
         <View style={styles.row}>
-          <TouchableOpacity style={styles.item}>
-            <FontAwesome name="credit-card" size={24} color="#e74c3c" />
-            <Text style={styles.itemText}>Belum Bayar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.item}>
-            <FontAwesome name="cube" size={24} color="#f39c12" />
-            <Text style={styles.itemText}>Dikemas</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.item}>
-            <FontAwesome name="truck" size={24} color="#2ecc71" />
-            <Text style={styles.itemText}>Dikirim</Text>
-          </TouchableOpacity>
+          {[
+            { icon: "credit-card", label: "Belum Bayar", color: "#F1948A" },
+            { icon: "cube", label: "Dikemas", color: "#F7DC6F" },
+            { icon: "truck", label: "Dikirim", color: "#82E0AA" },
+          ].map((item, index) => (
+            <TouchableOpacity key={index} style={styles.item}>
+              <FontAwesome name={item.icon} size={24} color={item.color} />
+              <Text style={styles.itemText}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
-      {/* Riwayat Pesanan Button */}
-      <TouchableOpacity
-        style={styles.historyButton}
-        onPress={goToOrderHistory}
-      >
-        <Text style={styles.historyButtonText}>Riwayat Pesanan</Text>
-      </TouchableOpacity>
-
-      {/* Dompet Saya Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Dompet Saya</Text>
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.item}>
-            <MaterialIcons name="account-balance-wallet" size={24} color="#3498db" />
-            <Text style={styles.itemText}>PayPay</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.sectionTitle}>Keuangan</Text>
+        {financialData ? (
+          <View>
+            <Text>Pendapatan: Rp {financialData.income}</Text>
+            <Text>Pengeluaran: Rp {financialData.expense}</Text>
+            <Text>Saldo: Rp {financialData.balance}</Text>
+          </View>
+        ) : (
+          <Text>Data keuangan tidak tersedia</Text>
+        )}
       </View>
 
-      {/* Logout Button */}
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Rekomendasi Produk</Text>
+        {products.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {products.map((product) => (
+              <View key={product._id} style={styles.horizontalCard}>
+                <TouchableOpacity
+                  onPress={() => handleProductClick(product)}
+                >
+                  <Image source={{ uri: product.imgUrl }} style={styles.productImageHorizontal} />
+                </TouchableOpacity>
+                <View style={styles.cardContent}>
+                  <Text style={styles.productName}>{product.name}</Text>
+                  <Text style={styles.productPrice}>Rp {product.price.toLocaleString("id-ID")}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        ) : (
+          <Text style={styles.noProductsText}>Produk tidak tersedia.</Text>
+        )}
+      </View>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleOnLogOut}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
@@ -159,19 +196,24 @@ export default function UserScreen() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#FAF3F3",
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#f39c12",
+    alignItems: "center",
+    backgroundColor: "#D7BDE2",
     padding: 20,
-    borderBottomLeftRadius: 15,
-    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   profileInfo: {
-    flexDirection: "row", 
+    flexDirection: "row",
     alignItems: "center",
   },
   profileImage: {
@@ -181,33 +223,28 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#fff",
   },
-  profileTextContainer: {
-    marginLeft: 15, 
+  profileDetails: {
+    marginLeft: 15,
   },
   userName: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#4A235A",
   },
-  userEmail: {
-    fontSize: 16,
-    color: "#fff",
-  },
-  headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
+  editProfile: {
+    color: "#6C3483",
+    fontSize: 14,
+    marginTop: 5,
   },
   iconButton: {
-    marginLeft: 15,
-    backgroundColor: "rgba(255,255,255,0.3)",
+    backgroundColor: "rgba(255,255,255,0.2)",
     padding: 10,
     borderRadius: 50,
   },
   sectionContainer: {
     backgroundColor: "#fff",
-    marginHorizontal: 15,
-    marginVertical: 10,
-    padding: 15,
+    margin: 15,
+    padding: 20,
     borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -218,13 +255,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 15,
-    color: "#2c3e50",
+    color: "#5B2C6F",
+    marginBottom: 10,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 15,
   },
   item: {
     alignItems: "center",
@@ -232,32 +268,48 @@ const styles = StyleSheet.create({
   itemText: {
     marginTop: 8,
     fontSize: 14,
-    fontWeight: "500",
-    color: "#34495e",
+    color: "#7D3C98",
   },
-  historyButton: {
-    alignSelf: "center",
-    marginTop: 10,
-    justifyContent: "center",
-  },
-  historyButtonText: {
-    fontSize: 14,
-    color: "#3498db", 
-    fontWeight: "bold",
-  },
-  logoutButton: {
-    backgroundColor: "#e74c3c",
-    margin: 20,
-    marginHorizontal: 15,
-    marginVertical: 20,
-    padding: 15,
-    borderRadius: 15,
-    alignItems: "center",
+  horizontalCard: {
+    width: 140,
+    marginRight: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    padding: 10,
+  },
+  productImageHorizontal: {
+    width: "100%",
+    height: 100,
+    borderRadius: 10,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#5B2C6F",
+  },
+  productPrice: {
+    fontSize: 14,
+    color: "#7D3C98",
+    marginTop: 5,
+  },
+  noProductsText: {
+    textAlign: "center",
+    color: "#999",
+  },
+  logoutButton: {
+    backgroundColor: "#F5B7B1",
+    margin: 20,
+    padding: 15,
+    borderRadius: 20,
+    alignItems: "center",
   },
   logoutText: {
     color: "#fff",

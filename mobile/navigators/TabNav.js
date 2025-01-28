@@ -1,9 +1,10 @@
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import HomeScreen from "../screens/OutletScreen";
 import UserScreen from "../screens/UserScreen";
-
 import TransactionScreen from "../screens/TransactionScreen";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -11,21 +12,26 @@ export default function TabNav() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+     
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
           if (route.name === "Home") {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Profile") {
-            iconName = focused ? "people" : "people-outline";
+            iconName = focused ? "person" : "person-outline";
           } else if (route.name === "Transaction") {
             iconName = focused ? "cart" : "cart-outline";
           }
+
           return <Ionicons name={iconName} size={size} color={color} />;
         },
+      
         tabBarActiveTintColor: "#0073b1",
         tabBarInactiveTintColor: "gray",
+   
         headerShown: false,
+     
         tabBarStyle: {
           backgroundColor: "white",
           borderTopWidth: 0,
@@ -37,10 +43,10 @@ export default function TabNav() {
         },
       })}
     >
+      {/* Tab Screens */}
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Profile" component={UserScreen}/>
-      <Tab.Screen name="Transaction" component={TransactionScreen}/>
-
+      <Tab.Screen name="Profile" component={UserScreen} />
+      <Tab.Screen name="Transaction" component={TransactionScreen} />
     </Tab.Navigator>
   );
 }

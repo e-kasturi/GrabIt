@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState,} from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -41,7 +41,6 @@ export default function RegisterScreen() {
     }
   };
 
-
   const handleRegister = async () => {
     if (!name || !email || !password) {
       Alert.alert("Error", "All fields are required!");
@@ -49,17 +48,13 @@ export default function RegisterScreen() {
     }
 
     try {
-
       await getCurrentLocation();
 
       if (!latitude || !longitude) {
-        Alert.alert("Error", "Location is required to complete registration!");
+        Alert.alert("Success", "Location is required to complete registration!");
         return;
       }
-      const response = await fetch(
-         
-        `${baseUrl}/api/register`,
-        {
+      const response = await fetch(`${baseUrl}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +91,6 @@ export default function RegisterScreen() {
       }
     } catch (error) {
       console.log(error);
-      
       Alert.alert("Error", error.message);
     }
   };
@@ -136,7 +130,7 @@ export default function RegisterScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="address"
+          placeholder="Address"
           value={address}
           onChangeText={setAddress}
         />
@@ -157,7 +151,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgb(170, 200, 210)",
+    backgroundColor: "white",
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 100,
   },
   form: {
     justifyContent: "center",
@@ -166,39 +165,37 @@ const styles = StyleSheet.create({
     width: "80%",
     padding: 10,
     borderRadius: 15,
-  },
-  image: {
-    width: 150,
-    height: 150,
-    borderRadius: 100,
+    backgroundColor: "rgb(255, 240, 255)", // Pink Muda
   },
   title: {
     fontSize: 40,
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
-    color: "rgba(22, 109, 159, 0.9)",
-    textShadowColor: "white",
-    textShadowOffset: { width: 1, height: 1 },
+    color: "purple",
+    textShadowColor: "pink",
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
   input: {
     width: "100%",
-    backgroundColor: "rgb(255, 255, 255)",
+    backgroundColor: "rgb(255, 255, 255)", // Putih
     padding: 10,
     marginBottom: 10,
     borderRadius: 15,
-    elevation: 10,
+    elevation: 2,
+    borderColor: "rgb(255, 182, 193)", // Pink Border
+    borderWidth: 1,
   },
   button: {
     width: "30%",
-    backgroundColor: "rgb(81, 145, 167)",
+    backgroundColor: "purple", // Ungu
     padding: 6,
     alignItems: "center",
     borderRadius: 15,
     marginTop: 10,
     marginBottom: 10,
-    borderColor: "rgba(255, 254, 254)",
+    borderColor: "rgba(249, 251, 253, 0.9)",
     elevation: 5,
   },
   buttonText: {
@@ -207,11 +204,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   navigation: {
-    color: "white",
-    marginTop: 5,
+    color: "pink", // Pink
+    marginTop: 10,
   },
   navigationLink: {
-    color: "rgb(81, 145, 167)",
+    color: "purple", // Ungu
     marginTop: 5,
     textDecorationLine: "underline",
   },

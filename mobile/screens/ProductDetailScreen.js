@@ -13,8 +13,6 @@ const ProductDetailScreen = ({ route }) => {
   const [productData, setProductData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isInWishlist, setIsInWishlist] = useState(false);
-  
-  const [selectProducts, setSelectedProducts] = useState([]);
 
   useEffect(() => {
     if (!slug) {
@@ -45,10 +43,14 @@ const ProductDetailScreen = ({ route }) => {
   }, [slug]);
 
   const handleWishlistToggle = async () => {
+    if (isInWishlist) {
+      Alert.alert("Already Added", "This product is already in your wishlist.");
+      return;
+    }
+
     try {
-      const method = isInWishlist ? 'DELETE' : 'POST'; 
       const response = await fetch(`${baseUrl}/api/customers/wishlist`, {
-        method: method,
+        method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
         },
@@ -58,35 +60,32 @@ const ProductDetailScreen = ({ route }) => {
       const responseBody = await response.json();
 
       if (response.ok) {
-        setIsInWishlist(!isInWishlist); 
-        console.log(`Product ${isInWishlist ? 'removed from' : 'added to'} wishlist`);
+        setIsInWishlist(true); 
+        Alert.alert('Success', 'Product added to wishlist');
       } else {
         console.error('Failed to update wishlist', responseBody);
-        alert('Produk sudah ada di wishlist');
+        Alert.alert("Error", "Product might already be in the wishlist.");
       }
     } catch (error) {
       console.error('Error in wishlist toggle:', error);
-      alert('An error occurred while updating the wishlist');
+      Alert.alert('Error', 'An error occurred while adding the product to wishlist');
     }
   };
 
   const handleAddTransaction = async () => {
     try {
       const token = await SecureStore.getItemAsync("access_token");
-      console.log(token, "token");
-  
       if (!token) {
         Alert.alert("Unauthorized", "Please log in to continue.");
         return navigation.navigate("Login");
       }
-  
+
       const { outletId, userId } = route.params || {};
-  
       if (!outletId || !userId) {
         Alert.alert("Missing Information", "Outlet ID or User ID is missing.");
         return;
       }
-  
+
       const response = await fetch(`${baseUrl}/api/customers/transactions`, {
         method: 'POST',
         headers: {
@@ -96,35 +95,25 @@ const ProductDetailScreen = ({ route }) => {
         body: JSON.stringify({
           outletId,
           customerId: userId,
-          product: selectProducts.map((item) => ({ productId: item._id })), 
-          transactionDate,
+          product: [{ productId: product._id }], 
+          transactionDate: new Date().toISOString(),
           totalAmount: 0,
           status: "pending",
         }),
       });
+
       const data = await response.json();
-  
       if (!response.ok) {
-        throw new Error("Failed to add transaction");
+        throw new Error(data.message || "Failed to add transaction");
       }
-      console.log(data, "data");
-  
-      Alert.alert("Success", `Transaction has been added!`);
-      setSelectedProducts([]);
+
+      Alert.alert("Success", "Transaction has been added!");
       navigation.navigate("Transaction");
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Unable to add transaction. Please try again.");
     }
   };
-  
-  if (!product) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Product information is missing</Text>
-      </View>
-    );
-  }
 
   if (loading) {
     return (
@@ -137,7 +126,7 @@ const ProductDetailScreen = ({ route }) => {
   if (!productData) {
     return (
       <View style={styles.container}>
-        <Text>Product not found</Text>
+        <Text style={styles.errorText}>Product not found</Text>
       </View>
     );
   }

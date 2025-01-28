@@ -43,11 +43,10 @@ export default function LoginScreen() {
       Alert.alert("Error", "Failed to get location. Please try again.");
     }
   };
+  
   const submitLogin = async (lat, long) => {
-    console.log(baseUrl, "baseUrl");
     try {
       const response = await fetch(
-        // "https://d9c8-2a09-bac5-3a48-25b9-00-3c2-d.ngrok-free.app/api/login",
         `${baseUrl}/api/login`,
         {
           method: "POST",
@@ -64,16 +63,13 @@ export default function LoginScreen() {
           }),
         }
       );
-      // console.log(response, "response");
 
       const data = await response.json();
-      console.log(data, "data");
-
+      
       if (response.ok) {
         Alert.alert("Success", "You have logged in successfully!");
         Keyboard.dismiss();
         setIsSignedIn(true);
-        // navigation.navigate("Home");
         await SecureStore.setItemAsync("access_token", data.access_token, data);
       } else {
         Alert.alert("Error", data.message || "Invalid login credentials!");
@@ -106,12 +102,6 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           secureTextEntry
         />
-        {/* <TextInput
-          style={styles.input}
-          placeholder="text"
-          value={role}
-          onChangeText={setRole}
-        /> */}
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
@@ -129,7 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgb(170, 200, 210)",
+    backgroundColor: "white",
   },
   image: {
     width: 150,
@@ -149,14 +139,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 15,
     textAlign: "center",
-    color: "rgba(22, 109, 159, 0.9)",
-    textShadowColor: "white",
+    color: "purple",
+    textShadowColor: "pink",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
   input: {
     width: "100%",
-    backgroundColor: "rgb(255, 255, 255)",
+    backgroundColor: "rgb(255, 240, 255)", 
     padding: 10,
     marginBottom: 10,
     borderRadius: 15,
@@ -164,7 +154,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "30%",
-    backgroundColor: "rgb(81, 145, 167)",
+    backgroundColor: "purple", 
     padding: 6,
     alignItems: "center",
     borderRadius: 15,
@@ -179,11 +169,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   navigation: {
-    color: "white",
+    color: "pink", 
     marginTop: 10,
   },
   navigationLink: {
-    color: "rgba(11, 91, 149, 0.9)",
+    color: "purple",
     marginTop: 5,
     textDecorationLine: "underline",
   },
