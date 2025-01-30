@@ -19,16 +19,17 @@ const ProductDetailScreen = ({ route }) => {
   console.log("outletId:", outletId);
   console.log("userId:", userId);
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        const storedUserId = await SecureStore.getItemAsync("userId"); 
-        setUserId(storedUserId); 
-      } catch (error) {
-        console.error("Error fetching userId from SecureStore:", error);
-      }
-    };
+  const fetchUserId = async () => {
+    try {
+      const storedUserId = await SecureStore.getItemAsync("userId");
+      console.log("Fetched userId:", storedUserId);  
+      setUserId(storedUserId); 
+    } catch (error) {
+      console.error("Error fetching userId from SecureStore:", error);
+    }
+  };
 
+  useEffect(() => {
     if (!slug) {
       console.error('Slug is missing');
       return;
@@ -36,6 +37,7 @@ const ProductDetailScreen = ({ route }) => {
 
     fetchUserId(); 
 
+ 
     const fetchProductDetails = async () => {
       try {
         const response = await fetch(`${baseUrl}/api/customers/product/${slug}`);
@@ -60,6 +62,11 @@ const ProductDetailScreen = ({ route }) => {
   }, [slug]);
 
   const handleWishlistToggle = async () => {
+    if (!userId) {
+      Alert.alert("Unauthorized", "Please log in to continue.");
+      return navigation.navigate("Login");
+    }
+
     if (isInWishlist) {
       Alert.alert("Already Added", "This product is already in your wishlist.");
       return;
@@ -101,7 +108,7 @@ const ProductDetailScreen = ({ route }) => {
         Alert.alert("Unauthorized", "Please log in to continue.");
         return navigation.navigate("Login");
       }
-  
+
       const totalAmount = productData.price || 0; 
       const response = await fetch(`${baseUrl}/api/customers/transactions`, {
         method: 'POST',
@@ -118,12 +125,12 @@ const ProductDetailScreen = ({ route }) => {
           status: "pending",
         }),
       });
-  
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Failed to add transaction");
       }
-  
+
       Alert.alert("Success", "Transaction has been added!");
       navigation.navigate("Transaction");
     } catch (error) {
