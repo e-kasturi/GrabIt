@@ -49,16 +49,17 @@ export type product = {
 }
 
 export type transactionType = {
-    _id?: string
-    outletId: string
-    customerId: string
-    transactionDate: string
-    totalAmount: number
-    status: string
-    customerDetail?: customerType[]
-    productDetail?: productType[]
-    products?: { productId: string; quantity: number }[]
-}
+    _id?: string;
+    outletId: string;
+    customerId: string;
+    transactionDate: string;
+    totalAmount: number;
+    status: string;
+    customerDetail?: customerType[];
+    productDetail?: productType[];
+    products?: { productId: string; quantity: number }[];
+  }
+  
 
 export type transaction = {
     id: string

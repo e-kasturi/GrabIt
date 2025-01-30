@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; 
 import { baseUrl } from "../configs/baseUrl";
+import * as SecureStore from 'expo-secure-store'; 
 
 const WishlistScreen = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -87,9 +88,52 @@ const WishlistScreen = () => {
   };
   
 
-  const handleAddToCart = (productId) => {
-    console.log(`Adding product with ID: ${productId} to cart.`);
+  const handleAddToCart = async (productId) => {
+    try {
+      // Fetch outletId and userId securely or from context
+      const outletId = await SecureStore.getItemAsync("outletId"); // Ensure outletId is saved in SecureStore
+      const userId = await SecureStore.getItemAsync("userId"); // Ensure userId is saved in SecureStore
+  
+      if (!outletId || !userId) {
+        Alert.alert("Missing Information", "Outlet ID or User ID is missing.");
+        return;
+      }
+  
+      const token = await SecureStore.getItemAsync("access_token");
+      if (!token) {
+        Alert.alert("Unauthorized", "Please log in to continue.");
+        return navigation.navigate("Login");
+      }
+  
+      const response = await fetch(`${baseUrl}/api/customers/transactions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          outletId,
+          customerId: userId,
+          product: [{ productId: productId }],
+          transactionDate: new Date().toISOString(),
+          totalAmount: 0,
+          status: "pending",
+        }),
+      });
+  
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add transaction");
+      }
+  
+      Alert.alert("Success", "Transaction has been added!");
+      navigation.navigate("Transaction");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Unable to add transaction. Please try again.");
+    }
   };
+  
 
   useEffect(() => {
     fetchWishlist();

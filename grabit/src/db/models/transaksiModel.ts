@@ -45,25 +45,25 @@ class TransactionModel {
     body,
   }: {
     userId: string;
-    body: transactionType;
+    body: transactionType; 
   }) {
     if (!body || !body.transactionDate || !body.products || !body.outletId) {
       throw new Error("Missing required fields in the request body");
     }
-
+  
     const { transactionDate, products, outletId } = body;
-
+  
     if (!products || products.length === 0) {
       throw new Error("products cannot be empty.");
     }
-
+  
     await client.connect();
     const session = client.startSession();
-
+  
     try {
       session.startTransaction();
       let totalAmount = 0;
-
+  
       for (const product of products) {
         const productDetail = await ProductModel.findById(product.productId);
         if (productDetail) {
@@ -72,7 +72,7 @@ class TransactionModel {
           throw new Error(`Product not found: ${product.productId}`);
         }
       }
-
+  
       const transaction = {
         outletId: new ObjectId(outletId),
         customerId: new ObjectId(userId),
@@ -80,11 +80,11 @@ class TransactionModel {
         totalAmount,
         status: "pending",
       };
-
+  
       const newTransaction = await this.collection().insertOne(transaction, {
         session,
       });
-
+  
       for (const product of products) {
         await this.detailCollection().insertOne(
           {
@@ -95,7 +95,7 @@ class TransactionModel {
           { session }
         );
       }
-
+  
       await session.commitTransaction();
       return newTransaction;
     } catch (error) {
@@ -105,6 +105,7 @@ class TransactionModel {
       session.endSession();
     }
   }
+  
   
   static async getById(id: string) {
     const agg = [

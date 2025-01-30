@@ -19,7 +19,7 @@ const OutletScreen = ({ route }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const { product } = route.params || {};
+  const { product, userId, outletId } = route.params || {};
   const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
@@ -82,7 +82,10 @@ const OutletScreen = ({ route }) => {
   };
 
   const handleProductClick = (product) => {
-    navigation.navigate("ProductDetail", { product });
+    console.log("outletId:", outletId);  
+  console.log("userId:", userId); 
+  navigation.navigate("ProductDetail", { product, outletId, userId });
+
   };
 
   const filteredProducts = products.filter((product) =>

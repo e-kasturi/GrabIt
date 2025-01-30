@@ -50,7 +50,9 @@ export default function UserScreen() {
         throw new Error("Failed to fetch profile");
       }
       const data = await response.json();
+      console.log("Data profil yang diterima:", data);
       setUser(data);
+      
     } catch (error) {
       Alert.alert("Error", "Failed to fetch profile");
     } finally {
