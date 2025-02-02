@@ -46,31 +46,36 @@ export default function LoginScreen() {
   
   const submitLogin = async (lat, long) => {
     try {
-      const response = await fetch(
-        `${baseUrl}/api/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "string",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-            role,
-            latitude: lat,
-            longitude: long,
-          }),
-        }
-      );
-
+      const response = await fetch(`${baseUrl}/api/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "string",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          role,
+          latitude: lat,
+          longitude: long,
+        }),
+      });
+  
       const data = await response.json();
+      console.log("Response Data:", data); // 🔥 Cek apakah data.userId ada
       
       if (response.ok) {
         Alert.alert("Success", "You have logged in successfully!");
         Keyboard.dismiss();
         setIsSignedIn(true);
-        await SecureStore.setItemAsync("access_token", data.access_token, data);
+  
+        await SecureStore.setItemAsync("access_token", data.access_token);
+        
+        if (data.userId) { // Pastikan userId ada sebelum menyimpannya
+          await SecureStore.setItemAsync("userId", JSON.stringify(data.userId));
+        } else {
+          console.warn("userId not found in response");
+        }
       } else {
         Alert.alert("Error", data.message || "Invalid login credentials!");
       }
@@ -80,7 +85,7 @@ export default function LoginScreen() {
       return;
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Image source={require("../assets/logo.jpg")} style={styles.image} />

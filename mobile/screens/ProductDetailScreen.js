@@ -22,12 +22,18 @@ const ProductDetailScreen = ({ route }) => {
   const fetchUserId = async () => {
     try {
       const storedUserId = await SecureStore.getItemAsync("userId");
-      console.log("Fetched userId:", storedUserId);  
-      setUserId(storedUserId); 
+      console.log("Stored userId after login:", storedUserId);
+      
+      if (storedUserId) {
+        setUserId(storedUserId); 
+      } else {
+        console.warn("UserId is null, user might not be logged in.");
+      }
     } catch (error) {
       console.error("Error fetching userId from SecureStore:", error);
     }
   };
+  
 
   useEffect(() => {
     if (!slug) {
@@ -97,48 +103,46 @@ const ProductDetailScreen = ({ route }) => {
   };
 
   const handleAddTransaction = async () => {
-    if (!userId) {
-      Alert.alert("Unauthorized", "Please log in to continue.");
-      return navigation.navigate("Login");
-    }
-
     try {
       const token = await SecureStore.getItemAsync("access_token");
       if (!token) {
         Alert.alert("Unauthorized", "Please log in to continue.");
         return navigation.navigate("Login");
       }
-
-      const totalAmount = productData.price || 0; 
+  
+      const transactionBody = {
+        transactionDate: new Date().toISOString().split("T")[0], 
+        products: [{ productId: product._id, quantity: 1 }], 
+        outletId,
+        totalAmount: productData?.price || 0,
+        status: "pending", 
+      };
+  
+      console.log("Sending transaction request:", JSON.stringify(transactionBody, null, 2));
+  
       const response = await fetch(`${baseUrl}/api/customers/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          outletId,
-          customerId: userId,
-          product: [{ productId: product._id }],
-          transactionDate: new Date().toISOString(),
-          totalAmount,
-          status: "pending",
-        }),
+        body: JSON.stringify(transactionBody),
       });
-
+  
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Failed to add transaction");
       }
-
+  
       Alert.alert("Success", "Transaction has been added!");
-      navigation.navigate("Transaction");
+      navigation.navigate("TransactionScreen");
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Unable to add transaction. Please try again.");
     }
   };
-
+  
+  
   if (loading) {
     return (
       <View style={styles.loadingContainer}>

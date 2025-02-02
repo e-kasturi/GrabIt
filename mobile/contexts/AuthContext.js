@@ -10,9 +10,14 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         const checkToken = async () => {
             const token = await SecureStore.getItemAsync('access_token');
+            const userId = await SecureStore.getItemAsync("userId");
+            const parsedUserId = userId ? JSON.parse(userId) : null;
+            console.log("Stored UserId:", parsedUserId);
+            
+            
             console.log(token, "token");
             
-            if(token) {
+            if(token && userId) {
                 setIsSignedIn(true)
             }
             setLoading(false)

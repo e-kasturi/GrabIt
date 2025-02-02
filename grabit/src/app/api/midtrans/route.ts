@@ -23,6 +23,7 @@ export async function POST(request: Request) {
       };
 
       const transactionToken = await snap.createTransaction(parameter);
+      console.log('Midtrans Response:', transactionToken);
       await TransaksiModel.savePaymentLink(transactionId, transactionToken.redirect_url)
       return Response.json({ transactionToken });
     } else {

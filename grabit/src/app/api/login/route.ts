@@ -42,5 +42,6 @@ export async function POST(request: Request) {
   return Response.json({
     message: "success Login",
     access_token,
+    userId: user._id.toString(), 
   });
 }

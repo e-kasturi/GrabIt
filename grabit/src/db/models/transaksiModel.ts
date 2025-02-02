@@ -140,6 +140,7 @@ class TransactionModel {
       },
     ];
     return this.collection().aggregate(agg).toArray();
+    
   }
 
   static async getByCustomerId(customerId: string) {
@@ -151,15 +152,15 @@ class TransactionModel {
       },
       {
         $lookup: {
-          from: "customers", 
-          localField: "customerId",
+          from: "outlets",
+          localField: "outletId",
           foreignField: "_id",
-          as: "customerDetail",
+          as: "outletDetail",
         },
       },
       {
         $lookup: {
-          from: "transactionDetails",
+          from: "transactionsDetails",
           localField: "_id",
           foreignField: "transactionId",
           as: "products",
@@ -173,18 +174,7 @@ class TransactionModel {
           as: "productDetail",
         },
       },
-      {
-        $unwind: {
-          path: "$customerDetail",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $unwind: {
-          path: "$productDetail",
-          preserveNullAndEmptyArrays: true, 
-        },
-      },
+      
     ];
   
     return this.collection().aggregate(agg).toArray();
