@@ -39,8 +39,8 @@ const Home = () => {
   }, []);
 
   const pendingOrders = transactions.filter((transaction: any) => transaction.status === "dikemas");
-  const canceledOrders = transactions.filter((transaction: any) => transaction.status === "canceled");
-  const returnedOrders = transactions.filter((transaction: any) => transaction.status === "returned");
+  const canceledOrders = transactions.filter((transaction: any) => transaction.status === "dibatalkan");
+  const returnedOrders = transactions.filter((transaction: any) => transaction.status === "pengembalian");
 
   if (loading) {
     return <div className="text-center text-pink-500">Loading...</div>;

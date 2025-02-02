@@ -11,23 +11,20 @@ export default function Finance() {
   useEffect(() => {
     const fetchFinanceData = async () => {
       try {
-        const response = await fetch("/api/outlets/balances", {
+        const balanceResponse = await fetch("/api/outlets/balances", {
           method: "GET",
           headers: {
-           
+            "Content-Type": "application/json",
           },
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch finance data");
-        }
+        if (!balanceResponse.ok) throw new Error("Failed to fetch balance");
 
-        const data = await response.json();
-        setBalance(data.balance || 0);
-        setWithdrawn(data.withdrawn || 0);
-        setTotal(data.total || 0);
-      } catch (err: any) {
-        setError(err.message || "Failed to load finance data.");
+        const balanceData = await balanceResponse.json();
+        setBalance(balanceData[0].balance);
+        console.log("Balance data:", balanceData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -50,7 +47,9 @@ export default function Finance() {
       <div className="mt-6 bg-white w-3/4 h-36 p-10 rounded-lg shadow-lg flex flex-col items-center justify-center">
         <span className="text-lg lg:text-xl font-medium text-purple-700">Total:</span>
         <span className="text-xl lg:text-2xl font-semibold text-pink-600">
-          Rp {total?.toLocaleString()}
+        {balance !== null
+                      ? `Rp ${balance.toLocaleString()}`
+                      : "Loading..."}
         </span>
       </div>
 
