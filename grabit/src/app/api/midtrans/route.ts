@@ -11,8 +11,11 @@ export async function POST(request: Request) {
   try {
     const { totalAmount, transactionId } = await request.json();
     console.log(totalAmount, transactionId, 'midtrans');
-    
+
     const transaction = await TransaksiModel.getById(transactionId);
+    if (!transaction || transaction.length === 0) {
+      return Response.json({ error: "Transaction not found" }, { status: 404 });
+    }
 
     if (!transaction[0].paymentLink) {
       let parameter = {
@@ -23,18 +26,19 @@ export async function POST(request: Request) {
       };
 
       const transactionToken = await snap.createTransaction(parameter);
-      console.log('Midtrans Response:', transactionToken);
-      await TransaksiModel.savePaymentLink(transactionId, transactionToken.redirect_url)
-      return Response.json({ transactionToken });
+      console.log(transactionToken, "<<<< Midtrans Response");
+
+      if (!transactionToken.redirect_url) {
+        return Response.json({ error: "Failed to generate payment link from Midtrans" }, { status: 500 });
+      }
+
+      await TransaksiModel.savePaymentLink(transactionId, transactionToken.redirect_url);
+      return Response.json({ paymentLink: transactionToken.redirect_url });
     } else {
       return Response.json({ message: "Transaction already paid" });
     }
   } catch (error) {
     console.log(error, "<<<<<<<< error line 24");
-    if (error instanceof Error) {
-      console.log(error.message, "<<<<<<<< error");
-    } else {
-      console.log(String(error), "<<<<<<<< error");
-    }
+    return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }

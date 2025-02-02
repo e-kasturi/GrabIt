@@ -88,51 +88,46 @@ const WishlistScreen = () => {
   };
   
 
-  const handleAddToCart = async (productId) => {
-    try {
-      // Fetch outletId and userId securely or from context
-      const outletId = await SecureStore.getItemAsync("outletId"); // Ensure outletId is saved in SecureStore
-      const userId = await SecureStore.getItemAsync("userId"); // Ensure userId is saved in SecureStore
-  
-      if (!outletId || !userId) {
-        Alert.alert("Missing Information", "Outlet ID or User ID is missing.");
-        return;
-      }
-  
-      const token = await SecureStore.getItemAsync("access_token");
-      if (!token) {
-        Alert.alert("Unauthorized", "Please log in to continue.");
-        return navigation.navigate("Login");
-      }
-  
-      const response = await fetch(`${baseUrl}/api/customers/transactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          outletId,
-          customerId: userId,
-          product: [{ productId: productId }],
-          transactionDate: new Date().toISOString(),
-          totalAmount: 0,
-          status: "pending",
-        }),
-      });
-  
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add transaction");
-      }
-  
-      Alert.alert("Success", "Transaction has been added!");
-      navigation.navigate("Transaction");
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Unable to add transaction. Please try again.");
-    }
-  };
+ const handleAddTransaction = async () => {
+     try {
+       const token = await SecureStore.getItemAsync("access_token");
+       if (!token) {
+         Alert.alert("Unauthorized", "Please log in to continue.");
+         return navigation.navigate("Login");
+       }
+   
+       const transactionBody = {
+         transactionDate: new Date().toISOString().split("T")[0], 
+         products: [{ productId: product._id, quantity: 1 }], 
+         outletId,
+         totalAmount: productData?.price || 0,
+         status: "pending", 
+       };
+   
+       console.log("Sending transaction request:", JSON.stringify(transactionBody, null, 2));
+   
+       const response = await fetch(`${baseUrl}/api/customers/transactions`, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           Authorization: `Bearer ${token}`,
+         },
+         body: JSON.stringify(transactionBody),
+       });
+   
+       const data = await response.json();
+       if (!response.ok) {
+         throw new Error(data.message || "Failed to add transaction");
+       }
+   
+       Alert.alert("Success", "Transaction has been added!");
+       navigation.navigate("TransactionScreen");
+     } catch (error) {
+       console.error(error);
+       Alert.alert("Error", "Unable to add transaction. Please try again.");
+     }
+   };
+   
   
 
   useEffect(() => {
@@ -190,7 +185,7 @@ const WishlistScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.iconButton}
-                  onPress={() => handleAddToCart(item.productId)}
+                  onPress={() => handleAddTransaction(item.productId)}
                 >
                   <Ionicons name="cart" size={24} color="green" />
                 </TouchableOpacity>

@@ -17,7 +17,7 @@ export async function PATCH(request:Request,
     const { id } = params
     const { status } = await request.json()
 
-    if (status === "done"){
+    if (status === "dikemas"){
         await TransactionModel.updateStatus(id, status)
 
         let transaction = await TransactionModel.getById(id)

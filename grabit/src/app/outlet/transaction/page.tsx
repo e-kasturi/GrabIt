@@ -73,7 +73,7 @@ const TransactionsPage = () => {
         console.log(transactions, result, "<<<<<<< response");
       }
       const response = await fetch(
-        `/api/outlets/transactions/${transactionId}`,
+        `/api/outlets/transaction/${transactionId}`,
         {
           method: "PATCH",
           headers: {

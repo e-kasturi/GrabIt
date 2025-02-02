@@ -21,6 +21,7 @@ export default function TransactionScreen() {
       const response = await fetch(`${baseUrl}/api/customers/transactions`);
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = await response.json();
+      console.log(data, "All transactions fetched"); // Log transaksi yang didapatkan
       setTransactions(data);
     } catch (error) {
       console.error(error);
@@ -117,17 +118,18 @@ export default function TransactionScreen() {
                   Total Price: Rp. {item.totalAmount}
                 </Text>
 
-                {/* Show Pay Order button only if status is not paid yet */}
                 {item.status !== "bayar" && (
                   <TouchableOpacity
                     style={[styles.buttonConfirm, styles.buttonDisabled]}
                     onPress={() => {
-                      if (item.status !== "bayar") {
-                        console.log(item, "item");
-                        console.log(item.paymentLink, "paymentLink sent to WebViewScreen");
+                      console.log(item, "item"); // Log item transaksi
+                      console.log(item.paymentLink, "paymentLink sent to WebViewScreen"); // Log paymentLink
+                      if (item.paymentLink) {
                         navigation.navigate("WebView", {
                           paymentLink: item.paymentLink,
                         });
+                      } else {
+                        Alert.alert("Error", "Payment link is unavailable.");
                       }
                     }}
                   >
@@ -139,7 +141,6 @@ export default function TransactionScreen() {
                   </TouchableOpacity>
                 )}
 
-                {/* Show Complete Order button if order is paid (status "bayar") */}
                 {item.status === "bayar" && (
                   <TouchableOpacity
                     style={styles.buttonConfirm}

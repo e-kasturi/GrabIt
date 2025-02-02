@@ -23,7 +23,7 @@ export default function WebViewScreen() {
     if (!url) return;
 
     if (url.includes("message=success") || url.includes("409")) {
-      navigation.navigate("Transaction");
+      navigation.navigate("TransactionScreen");
     }
   };
 
