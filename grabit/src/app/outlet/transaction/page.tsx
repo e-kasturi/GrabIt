@@ -56,7 +56,7 @@ const TransactionsPage = () => {
     newStatus: string
   ) => {
     try {
-      if (newStatus === "deliver") {
+      if (newStatus === "selesai") {
         const response = await fetch(`/api/midtrans/`, {
           method: "POST",
           headers: {

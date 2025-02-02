@@ -21,7 +21,7 @@ export default function TransactionScreen() {
       const response = await fetch(`${baseUrl}/api/customers/transactions`);
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = await response.json();
-      console.log(data, "All transactions fetched"); // Log transaksi yang didapatkan
+      console.log(data, "All transactions fetched");
       setTransactions(data);
     } catch (error) {
       console.error(error);
@@ -41,7 +41,7 @@ export default function TransactionScreen() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            status: "done",
+            status: "selesai",
           }),
         }
       );
@@ -64,6 +64,45 @@ export default function TransactionScreen() {
     }, [])
   );
 
+  const handlePayment = async (item) => {
+    if (item.paymentLink) {
+      navigation.navigate("WebView", {
+        paymentLink: item.paymentLink,
+      });
+    } else {
+
+      try {
+        const response = await fetch(`${baseUrl}/api/midtrans`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            totalAmount: item.totalAmount,
+            transactionId: item._id,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to generate payment link");
+        }
+
+        const data = await response.json();
+        if (data.paymentLink) {
+          navigation.navigate("WebView", {
+            paymentLink: data.paymentLink,
+          });
+        } else {
+          Alert.alert("Error", "Failed to generate payment link from Midtrans");
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Error", error.message || "Failed to generate payment link");
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Transaction</Text>
@@ -74,14 +113,14 @@ export default function TransactionScreen() {
           onRefresh={fetchTransactions}
           refreshing={loading}
           data={transactions}
-          keyExtractor={(item, i) => i.toString()}
+          keyExtractor={(item) => item._id?.toString() || item._id}
           renderItem={({ item }) => (
             <View style={styles.transactionCard}>
               <Text style={styles.transactionName}>
-                {item.outletDetail?.length > 0 ? item.outletDetail[0].nameOutlet : "No Outlet"}
+                {item.outletDetail?.[0]?.nameOutlet || "No Outlet"}
               </Text>
               <Text style={styles.transactionAddress}>
-                {item.outletDetail?.length > 0 ? item.outletDetail[0].address : "No Address"}
+                {item.outletDetail?.[0]?.address || "No Address"}
               </Text>
 
               <View style={styles.nameContainer}>
@@ -118,30 +157,33 @@ export default function TransactionScreen() {
                   Total Price: Rp. {item.totalAmount}
                 </Text>
 
-                {item.status !== "bayar" && (
-                  <TouchableOpacity
-                    style={[styles.buttonConfirm, styles.buttonDisabled]}
-                    onPress={() => {
-                      console.log(item, "item"); // Log item transaksi
-                      console.log(item.paymentLink, "paymentLink sent to WebViewScreen"); // Log paymentLink
-                      if (item.paymentLink) {
-                        navigation.navigate("WebView", {
-                          paymentLink: item.paymentLink,
-                        });
-                      } else {
-                        Alert.alert("Error", "Payment link is unavailable.");
-                      }
-                    }}
-                  >
-                    <Text style={styles.buttonText}>
-                      {item.status === "bayar"
-                        ? "Done"
-                        : item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                    </Text>
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  style={[
+                    styles.buttonConfirm,
+                    (item.status === "dikemas" ||
+                      item.status === "dikirim" ||
+                      item.status === "selesai" ||
+                      item.status === "pengembalian" ||
+                      item.status === "dibatalkan") &&
+                      styles.buttonDisabled,
+                  ]}
+                  disabled={
+                    item.status === "dikemas" ||
+                    item.status === "dikirim" ||
+                    item.status === "selesai" ||
+                    item.status === "pengembalian" ||
+                    item.status === "dibatalkan"
+                  }
+                  onPress={() => handlePayment(item)}
+                >
+                  <Text style={styles.buttonText}>
+                    {item.status === "pending" || item.status === "paid"
+                      ? "Bayar"
+                      : item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                  </Text>
+                </TouchableOpacity>
 
-                {item.status === "bayar" && (
+                {item.status === "selesai" && (
                   <TouchableOpacity
                     style={styles.buttonConfirm}
                     onPress={() => completeOrder(item._id)}
@@ -152,7 +194,9 @@ export default function TransactionScreen() {
               </View>
             </View>
           )}
-          ListEmptyComponent={<Text style={styles.noTransactions}>No transactions available.</Text>}
+          ListEmptyComponent={
+            <Text style={styles.noTransactions}>No transactions available.</Text>
+          }
         />
       )}
     </View>
