@@ -3,12 +3,23 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOp
 import { Ionicons } from "@expo/vector-icons"; 
 import { baseUrl } from "../configs/baseUrl";
 import * as SecureStore from 'expo-secure-store'; 
+import { useNavigation } from '@react-navigation/native';
 
-const WishlistScreen = () => {
+const WishlistScreen = ({ route }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
+   const [userId, setUserId] = useState(null); 
   const [error, setError] = useState(null);
+  const { product } = route.params || {};
+  const outletId = product?.outletId; 
+  const slug = product?.slug;
+    const navigation = useNavigation();
+  
+    console.log("Product:", product);
+    console.log("outletId:", outletId);
+    console.log("userId:", userId);
 
+    
   const fetchWishlist = async () => {
     try {
       console.log("Fetching wishlist...");
@@ -183,12 +194,9 @@ const WishlistScreen = () => {
                 >
                   <Ionicons name="trash" size={24} color="red" />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => handleAddTransaction(item.productId)}
-                >
-                  <Ionicons name="cart" size={24} color="green" />
-                </TouchableOpacity>
+                <TouchableOpacity onPress={handleAddTransaction}>
+                           <Ionicons name="cart" size={30} color="#27ae60" />
+                         </TouchableOpacity>
               </View>
             </View>
           );
