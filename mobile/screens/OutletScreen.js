@@ -82,10 +82,9 @@ const OutletScreen = ({ route }) => {
   };
 
   const handleProductClick = (product) => {
-    console.log("outletId:", outletId);  
-  console.log("userId:", userId); 
-  navigation.navigate("ProductDetail", { product, outletId, userId });
-
+    console.log("outletId:", outletId);
+    console.log("userId:", userId);
+    navigation.navigate("ProductDetail", { product, outletId, userId });
   };
 
   const filteredProducts = products.filter((product) =>
@@ -95,7 +94,7 @@ const OutletScreen = ({ route }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
@@ -114,11 +113,11 @@ const OutletScreen = ({ route }) => {
           style={styles.iconContainer}
           onPress={() => navigation.navigate("WishlistScreen")}
         >
-          <Icon name="heart" size={20} color="#555" />
+          <Icon name="heart" size={20} color="#e74c3c" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.iconContainer}
-        onPress={() => navigation.navigate("GeminiScreen")}
+          onPress={() => navigation.navigate("GeminiScreen")}
         >
           <Icon name="comment" size={20} color="#555" />
         </TouchableOpacity>
@@ -201,27 +200,39 @@ const OutletScreen = ({ route }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 20,
+    backgroundColor: "#F8F1FF",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
+    backgroundColor: "#fff",
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
     height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    fontSize: 14,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    paddingHorizontal: 15,
+  },
+  iconContainer: {
+    marginLeft: 10,
+    padding: 8,
   },
   adContainer: {
     marginBottom: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 10,
+    elevation: 4,
   },
   adText: {
     fontSize: 16,
@@ -244,10 +255,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     resizeMode: "cover",
   },
-  iconContainer: {
-    marginLeft: 10,
-    padding: 8,
-  },
   cardContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -257,15 +264,18 @@ const styles = StyleSheet.create({
     width: "48%",
     marginBottom: 15,
     backgroundColor: "#fff",
-    borderRadius: 8,
+    borderRadius: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    elevation: 4,
+    elevation: 5,
+    overflow: "hidden",
   },
   productImage: {
     width: "100%",
     height: 150,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   cardContent: {
     padding: 10,
@@ -278,35 +288,40 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontWeight: "bold",
+    color: "#34495e",
   },
   productDescription: {
     fontSize: 14,
     color: "#7f8c8d",
+    marginVertical: 5,
   },
   productPrice: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#e74c3c",
-    marginTop: 5,
   },
   heartIconContainer: {
-    marginLeft: 10,
     padding: 5,
-    borderRadius: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   noProductsContainer: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 50,
+    flex: 1,
   },
   noProductsText: {
-    fontSize: 16,
-    color: "#7f8c8d",
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#e74c3c",
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#34495e",
   },
 });
 

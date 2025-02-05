@@ -15,19 +15,11 @@ const ProductDetailScreen = ({ route }) => {
   const slug = product?.slug;
   const navigation = useNavigation();
 
-  console.log("Product:", product);
-  console.log("outletId:", outletId);
-  console.log("userId:", userId);
-
   const fetchUserId = async () => {
     try {
       const storedUserId = await SecureStore.getItemAsync("userId");
-      console.log("Stored userId after login:", storedUserId);
-      
       if (storedUserId) {
         setUserId(storedUserId); 
-      } else {
-        console.warn("UserId is null, user might not be logged in.");
       }
     } catch (error) {
       console.error("Error fetching userId from SecureStore:", error);
@@ -35,18 +27,13 @@ const ProductDetailScreen = ({ route }) => {
   };
 
   useEffect(() => {
-    if (!slug) {
-      console.error('Slug is missing');
-      return;
-    }
-
+    if (!slug) return;
     fetchUserId(); 
 
     const fetchProductDetails = async () => {
       try {
         const response = await fetch(`${baseUrl}/api/customers/product/${slug}`);
         const data = await response.json();
-
         if (data.error) {
           setProductData(null);
         } else {
@@ -62,19 +49,12 @@ const ProductDetailScreen = ({ route }) => {
     };
 
     fetchProductDetails(); 
-
   }, [slug]);
 
   const handleWishlistToggle = async (productId) => {
-    if (!productId) {
-      console.error("Product ID is undefined");
-      Alert.alert("Error", "Product ID is missing");
-      return;
-    }
+    if (!productId) return;
 
     try {
-      console.log("Sending productId to wishlist:", JSON.stringify({ productId }));
-
       const response = await fetch(`${baseUrl}/api/customers/wishlist`, {
         method: "POST",
         headers: {
@@ -86,19 +66,12 @@ const ProductDetailScreen = ({ route }) => {
       const responseBody = await response.json();
 
       if (response.ok) {
-        setIsInWishlist(true);
-        Alert.alert(
-          "Success",
-          `Product has been added to your wishlist.`,
-          [{ text: "OK" }]
-        );
-        console.log(`Product added to wishlist`);
+        setIsInWishlist(!isInWishlist);
+        Alert.alert("Success", "Product added to wishlist.");
       } else {
-        console.error("Failed to update wishlist", responseBody);
-        Alert.alert("Error", "Product might already be in the wishlist.");
+        Alert.alert("Error", "Product already in wishlist.");
       }
     } catch (error) {
-      console.error("Error in wishlist toggle:", error);
       Alert.alert("Error", "An error occurred while updating the wishlist");
     }
   };
@@ -119,8 +92,6 @@ const ProductDetailScreen = ({ route }) => {
         status: "pending", 
       };
 
-      console.log("Sending transaction request:", JSON.stringify(transactionBody, null, 2));
-
       const response = await fetch(`${baseUrl}/api/customers/transactions`, {
         method: 'POST',
         headers: {
@@ -135,10 +106,9 @@ const ProductDetailScreen = ({ route }) => {
         throw new Error(data.message || "Failed to add transaction");
       }
 
-      Alert.alert("Success", "Transaction has been added!");
+      Alert.alert("Success", "Transaction added!");
       navigation.navigate("TransactionScreen");
     } catch (error) {
-      console.error(error);
       Alert.alert("Error", "Unable to add transaction. Please try again.");
     }
   };
@@ -175,13 +145,14 @@ const ProductDetailScreen = ({ route }) => {
           <TouchableOpacity onPress={() => handleWishlistToggle(productData._id)}>
             <Ionicons
               name={isInWishlist ? "heart" : "heart-outline"}
-              size={30}
+              size={34}
               color={isInWishlist ? "#e74c3c" : "#bdc3c7"}
+              style={styles.icon}
             />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleAddTransaction}>
-            <Ionicons name="cart" size={30} color="#27ae60" />
+          <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddTransaction}>
+            <Text style={styles.addToCartText}>Add to Cart</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -192,44 +163,44 @@ const ProductDetailScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f6fa',
-    padding: 20,
+    backgroundColor: '#FFF0F5',
+    paddingHorizontal: 20,
+    paddingTop: 30,
   },
   productCard: {
     backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 25,
-    elevation: 5,  
+    borderRadius: 25,
+    padding: 20,
+    elevation: 12,
     shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    marginBottom: 20,
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    marginBottom: 25,
+    overflow: 'hidden', 
   },
   productImage: {
     width: '100%',
     height: 350,
-    resizeMode: 'contain',
-    marginBottom: 20,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    resizeMode: 'cover',
+    borderRadius: 20,
+    marginBottom: 15,
   },
   productName: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontSize: 28,
+    fontWeight: '600',
     color: '#34495e',
+    marginBottom: 8,
   },
   productDescription: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#7f8c8d',
-    marginBottom: 15,
-    lineHeight: 24,
+    marginBottom: 20,
+    lineHeight: 22,
   },
   productPrice: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#e74c3c',
     marginBottom: 20,
   },
@@ -237,6 +208,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  icon: {
+    transition: 'all 0.3s ease-in-out',
+  },
+  addToCartBtn: {
+    backgroundColor: '#6A0DAD',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 40,
+    elevation: 5,
+    transform: [{ scale: 1 }],
+    transition: 'all 0.2s ease',
+  },
+  addToCartText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,

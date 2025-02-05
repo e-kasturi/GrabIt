@@ -21,7 +21,14 @@ export default function UserScreen() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const [financialData, setFinancialData] = useState(null);
+  const [orderStatus, setOrderStatus] = useState({
+    pending: 0,
+    dikemas: 0,
+    dikirim: 0,
+    selesai: 0,
+    dibatalkan: 0,
+    pengembalian: 0,
+  });
 
   const handleOnLogOut = async () => {
     await SecureStore.deleteItemAsync("access_token");
@@ -52,7 +59,41 @@ export default function UserScreen() {
       const data = await response.json();
       console.log("Data profil yang diterima:", data);
       setUser(data);
-      
+
+      const transactionResponse = await fetch(`${baseUrl}/api/customers/transactions`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!transactionResponse.ok) {
+        throw new Error("Failed to fetch transactions");
+      }
+      const transactionData = await transactionResponse.json();
+      console.log("Transaksi yang diterima:", transactionData);
+
+      const orderStatusCount = {
+        pending: 0,
+        selesai: 0,
+        dibatalkan: 0,
+        pengembalian: 0,
+        dikemas: 0,
+        dikirim: 0,
+      };
+
+      // Count status of transactions
+      transactionData.forEach((transaction) => {
+        if (transaction.status === "pending") {
+          orderStatusCount.pending++;
+        } else if (transaction.status === "dikemas") {
+          orderStatusCount.dikemas++;
+        } else if (transaction.status === "dikirim") {
+          orderStatusCount.dikirim++;
+        }
+      });
+
+      setOrderStatus(orderStatusCount);
+
     } catch (error) {
       Alert.alert("Error", "Failed to fetch profile");
     } finally {
@@ -73,23 +114,6 @@ export default function UserScreen() {
     }
   };
 
-  const fetchFinancialData = async () => {
-    try {
-      const token = await SecureStore.getItemAsync("access_token");
-      const response = await fetch(`${baseUrl}/api/customers/finance`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error("Failed to fetch financial data");
-      const data = await response.json();
-      setFinancialData(data);
-    } catch (error) {
-      console.error("Error fetching financial data:", error);
-    }
-  };
-
   const handleProductClick = (product) => {
     navigation.navigate("ProductDetail", { product });
   };
@@ -97,7 +121,6 @@ export default function UserScreen() {
   useEffect(() => {
     fetchUserProfile();
     fetchProducts();
-    fetchFinancialData();
   }, []);
 
   if (loading) {
@@ -136,13 +159,22 @@ export default function UserScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Container untuk Riwayat Pesanan dan Pesanan Saya */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Pesanan Saya</Text>
+        <View style={styles.rowTitle}>
+          <Text style={styles.sectionTitle}>Pesanan Saya</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("TransactionScreen")}>
+            <Text style={styles.riwayatTitle}>Riwayat Pesanan</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Pesanan Saya */}
         <View style={styles.row}>
-          {[
-            { icon: "credit-card", label: "Belum Bayar", color: "#F1948A" },
-            { icon: "cube", label: "Dikemas", color: "#F7DC6F" },
-            { icon: "truck", label: "Dikirim", color: "#82E0AA" },
+          {[ 
+            { icon: "credit-card", label: `Belum Bayar (${orderStatus.pending})`, color: "#F1948A" },
+            { icon: "cube", label: `Dikemas (${orderStatus.dikemas})`, color: "#F7DC6F" },
+            { icon: "truck", label: `Dikirim (${orderStatus.dikirim})`, color: "#82E0AA" },
+          
           ].map((item, index) => (
             <TouchableOpacity key={index} style={styles.item}>
               <FontAwesome name={item.icon} size={24} color={item.color} />
@@ -152,18 +184,22 @@ export default function UserScreen() {
         </View>
       </View>
 
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Keuangan</Text>
-        {financialData ? (
-          <View>
-            <Text>Pendapatan: Rp {financialData.income}</Text>
-            <Text>Pengeluaran: Rp {financialData.expense}</Text>
-            <Text>Saldo: Rp {financialData.balance}</Text>
-          </View>
-        ) : (
-          <Text>Data keuangan tidak tersedia</Text>
-        )}
-      </View>
+  {/* Container Keuangan */}
+  <View style={styles.sectionContainer}>
+  <Text style={styles.sectionTitle}>Dompet Saya</Text>
+  <View style={styles.rowBetween}>
+    {[
+      { icon: "money", label: "PayLater", color: "red" },
+      { icon: "bank", label: "Bank", color: "red" },
+    ].map((item, index) => (
+      <TouchableOpacity key={index} style={styles.walletItem}>
+        <FontAwesome name={item.icon} size={24} color={item.color} />
+        <Text style={styles.itemText}>{item.label}</Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+</View>
+
 
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Rekomendasi Produk</Text>
@@ -171,9 +207,7 @@ export default function UserScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {products.map((product) => (
               <View key={product._id} style={styles.horizontalCard}>
-                <TouchableOpacity
-                  onPress={() => handleProductClick(product)}
-                >
+                <TouchableOpacity onPress={() => handleProductClick(product)}>
                   <Image source={{ uri: product.imgUrl }} style={styles.productImageHorizontal} />
                 </TouchableOpacity>
                 <View style={styles.cardContent}>
@@ -187,6 +221,14 @@ export default function UserScreen() {
           <Text style={styles.noProductsText}>Produk tidak tersedia.</Text>
         )}
       </View>
+
+    <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Bantuan</Text>
+            <TouchableOpacity style={styles.helpButton} onPress={() => navigation.navigate("GeminiScreen")}>
+              <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />
+              <Text style={styles.helpText}>Tanya Gemini AI</Text>
+            </TouchableOpacity>
+          </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleOnLogOut}>
         <Text style={styles.logoutText}>Logout</Text>
@@ -233,6 +275,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#4A235A",
   },
+  helpButton: {
+    backgroundColor: "#D1C4E9",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 10,
+    justifyContent: "center",
+  },
   editProfile: {
     color: "#6C3483",
     fontSize: 14,
@@ -254,15 +304,25 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
+  rowTitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  riwayatTitle: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#5B2C6F",
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#5B2C6F",
-    marginBottom: 10,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+    flexWrap: "wrap",
   },
   item: {
     alignItems: "center",
@@ -318,4 +378,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  walletItem: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  
 });
