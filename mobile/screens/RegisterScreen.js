@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     width: "80%",
     padding: 10,
     borderRadius: 15,
-    backgroundColor: "rgb(255, 240, 255)", // Pink Muda
+    backgroundColor: "rgb(255, 240, 255)", 
   },
   title: {
     fontSize: 40,
@@ -179,17 +179,17 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
-    backgroundColor: "rgb(255, 255, 255)", // Putih
+    backgroundColor: "rgb(255, 255, 255)", 
     padding: 10,
     marginBottom: 10,
     borderRadius: 15,
     elevation: 2,
-    borderColor: "rgb(255, 182, 193)", // Pink Border
+    borderColor: "rgb(255, 182, 193)", 
     borderWidth: 1,
   },
   button: {
     width: "30%",
-    backgroundColor: "purple", // Ungu
+    backgroundColor: "purple", 
     padding: 6,
     alignItems: "center",
     borderRadius: 15,
@@ -204,11 +204,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   navigation: {
-    color: "pink", // Pink
+    color: "pink", 
     marginTop: 10,
   },
   navigationLink: {
-    color: "purple", // Ungu
+    color: "purple",
     marginTop: 5,
     textDecorationLine: "underline",
   },

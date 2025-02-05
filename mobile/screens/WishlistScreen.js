@@ -147,8 +147,8 @@ const WishlistScreen = () => {
   }
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>Wishlist</Text>
+      <View style={styles.container}>
+        <Text style={styles.title}>Wishlist</Text>
       <FlatList
         data={wishlist}
         keyExtractor={(item) => item._id}
@@ -167,10 +167,10 @@ const WishlistScreen = () => {
                 <Text style={styles.productPrice}>{`Rp. ${Number(item.price).toLocaleString("id-ID")}`}</Text>
               </View>
               <TouchableOpacity style={styles.iconButton} onPress={() => handleRemoveFromWishlist(item._id)}>
-                <Ionicons name="trash" size={24} color="red" />
+                <Ionicons name="trash" size={22} color="ashgrey" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleAddTransaction(item)}>
-                <Ionicons name="cart" size={30} color="#27ae60" />
+                <Ionicons name="cart" size={24} color="ashgrey" />
               </TouchableOpacity>
             </View>
           );
@@ -181,39 +181,54 @@ const WishlistScreen = () => {
 };
 
 const styles = {
-  productContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    marginBottom: 10,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
+  title: {
+    fontSize: 32,
+    fontWeight: "800",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#BA68C8",
+    textShadowColor: "white",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
-  productImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 10,
-  },
-  productInfo: {
-    flex: 1,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  productPrice: {
-    fontSize: 14,
-    color: "#e74c3c",
-  },
-  iconButton: {
-    padding: 8,
-  },
-};
-
+    container: { 
+      flex: 1, 
+      padding: 20, 
+      backgroundColor: "#FFF0F5" 
+    },
+    productContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 10,
+      backgroundColor: "#D7BDE2", 
+      marginBottom: 10,
+      borderRadius: 8,
+      shadowColor: "#000",
+      shadowOpacity: 0.1,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    productImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 8,
+      marginRight: 10,
+    },
+    productInfo: {
+      flex: 1,
+    },
+    productName: {
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    productPrice: {
+      fontSize: 14,
+      color: "#e74c3c",
+    },
+    iconButton: {
+      padding: 8,
+    },
+  };
+  
 export default WishlistScreen;

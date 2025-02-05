@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import StatusScreen from "../screens/StatusScreen";
-
+import GeminiScreen from "../screens/GeminiScreen"
 import UserScreen from "../screens/UserScreen";
 import UpdateProfileScreen from "../screens/UpdateProfileScreen";
 import WebViewScreen from "../screens/WebViewScreen";
@@ -37,7 +37,7 @@ export default function StackNav() {
           <Stack.Screen name="TransactionScreen" component={TransactionScreen} />
           <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
           <Stack.Screen name="WishlistScreen" component={WishlistScreen} />
-          
+          <Stack.Screen name="GeminiScreen" component={GeminiScreen} />
         </>
       ) : (
         <>

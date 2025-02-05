@@ -206,7 +206,7 @@ export default function TransactionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgb(255, 182, 193)",
+    backgroundColor: "#FFF0F5",
     paddingHorizontal: 20,
     paddingTop: 30,
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginBottom: 20,
     textAlign: "center",
-    color: "rgb(128, 0, 128)",
+    color: "#BA68C8",
     textShadowColor: "white",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   transactionName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "rgb(128, 0, 128)",
+    color: "#BA68C8",
   },
   transactionAddress: {
     fontSize: 16,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonConfirm: {
-    backgroundColor: "rgb(128, 0, 128)",
+    backgroundColor:"#D1C4E9",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,

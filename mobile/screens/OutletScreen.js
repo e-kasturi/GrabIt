@@ -116,7 +116,10 @@ const OutletScreen = ({ route }) => {
         >
           <Icon name="heart" size={20} color="#555" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconContainer}>
+        <TouchableOpacity
+          style={styles.iconContainer}
+        onPress={() => navigation.navigate("GeminiScreen")}
+        >
           <Icon name="comment" size={20} color="#555" />
         </TouchableOpacity>
       </View>
