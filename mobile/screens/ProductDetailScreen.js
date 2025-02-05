@@ -33,7 +33,6 @@ const ProductDetailScreen = ({ route }) => {
       console.error("Error fetching userId from SecureStore:", error);
     }
   };
-  
 
   useEffect(() => {
     if (!slug) {
@@ -43,7 +42,6 @@ const ProductDetailScreen = ({ route }) => {
 
     fetchUserId(); 
 
- 
     const fetchProductDetails = async () => {
       try {
         const response = await fetch(`${baseUrl}/api/customers/product/${slug}`);
@@ -67,38 +65,41 @@ const ProductDetailScreen = ({ route }) => {
 
   }, [slug]);
 
-  const handleWishlistToggle = async () => {
-    if (!userId) {
-      Alert.alert("Unauthorized", "Please log in to continue.");
-      return navigation.navigate("Login");
-    }
-
-    if (isInWishlist) {
-      Alert.alert("Already Added", "This product is already in your wishlist.");
+  const handleWishlistToggle = async (productId) => {
+    if (!productId) {
+      console.error("Product ID is undefined");
+      Alert.alert("Error", "Product ID is missing");
       return;
     }
 
     try {
+      console.log("Sending productId to wishlist:", JSON.stringify({ productId }));
+
       const response = await fetch(`${baseUrl}/api/customers/wishlist`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productId: product._id, userId }),
+        body: JSON.stringify({ productId }),
       });
 
       const responseBody = await response.json();
 
       if (response.ok) {
         setIsInWishlist(true);
-        Alert.alert('Success', 'Product added to wishlist');
+        Alert.alert(
+          "Success",
+          `Product has been added to your wishlist.`,
+          [{ text: "OK" }]
+        );
+        console.log(`Product added to wishlist`);
       } else {
-        console.error('Failed to update wishlist', responseBody);
+        console.error("Failed to update wishlist", responseBody);
         Alert.alert("Error", "Product might already be in the wishlist.");
       }
     } catch (error) {
-      console.error('Error in wishlist toggle:', error);
-      Alert.alert('Error', 'An error occurred while adding the product to wishlist');
+      console.error("Error in wishlist toggle:", error);
+      Alert.alert("Error", "An error occurred while updating the wishlist");
     }
   };
 
@@ -109,7 +110,7 @@ const ProductDetailScreen = ({ route }) => {
         Alert.alert("Unauthorized", "Please log in to continue.");
         return navigation.navigate("Login");
       }
-  
+
       const transactionBody = {
         transactionDate: new Date().toISOString().split("T")[0], 
         products: [{ productId: product._id, quantity: 1 }], 
@@ -117,9 +118,9 @@ const ProductDetailScreen = ({ route }) => {
         totalAmount: productData?.price || 0,
         status: "pending", 
       };
-  
+
       console.log("Sending transaction request:", JSON.stringify(transactionBody, null, 2));
-  
+
       const response = await fetch(`${baseUrl}/api/customers/transactions`, {
         method: 'POST',
         headers: {
@@ -128,12 +129,12 @@ const ProductDetailScreen = ({ route }) => {
         },
         body: JSON.stringify(transactionBody),
       });
-  
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Failed to add transaction");
       }
-  
+
       Alert.alert("Success", "Transaction has been added!");
       navigation.navigate("TransactionScreen");
     } catch (error) {
@@ -141,8 +142,7 @@ const ProductDetailScreen = ({ route }) => {
       Alert.alert("Error", "Unable to add transaction. Please try again.");
     }
   };
-  
-  
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -172,7 +172,7 @@ const ProductDetailScreen = ({ route }) => {
         <Text style={styles.productPrice}>{formattedPrice}</Text>
 
         <View style={styles.actionContainer}>
-          <TouchableOpacity onPress={handleWishlistToggle}>
+          <TouchableOpacity onPress={() => handleWishlistToggle(productData._id)}>
             <Ionicons
               name={isInWishlist ? "heart" : "heart-outline"}
               size={30}

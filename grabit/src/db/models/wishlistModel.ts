@@ -1,6 +1,6 @@
-import { z } from "zod";
 import { database } from "../config/config";
 import { ObjectId } from "mongodb";
+import { z } from "zod";
 
 const wishlistSchema = z.object({
   userId: z.union([z.string(), z.instanceof(ObjectId)]),
@@ -19,23 +19,25 @@ class WishlistModel {
     return database.collection("wishlists");
   }
 
+  static toObjectId(id: string | ObjectId): ObjectId {
+    if (id instanceof ObjectId) {
+      return id; 
+    }
+    return new ObjectId(id); 
+  }
   static async create(newWishlist: WishlistType) {
     wishlistSchema.parse(newWishlist); 
-    newWishlist.userId = new ObjectId(newWishlist.userId);
-    newWishlist.productId = new ObjectId(newWishlist.productId);
+    newWishlist.userId = this.toObjectId(newWishlist.userId);
+    newWishlist.productId = this.toObjectId(newWishlist.productId);
 
     return await this.collection().insertOne(newWishlist);
   }
 
-  static async findByUserId(userId: string) {
-    const objectId = new ObjectId(userId);
-
+  static async findByUserId(userId: string | ObjectId) {
+    const objectId = this.toObjectId(userId);
+  
     const agg = [
-      {
-        $match: {
-          userId: objectId,
-        },
-      },
+      { $match: { userId: objectId } },
       {
         $lookup: {
           from: "products",
@@ -44,15 +46,20 @@ class WishlistModel {
           as: "productDetails",
         },
       },
+      { $unwind: { path: "$productDetails", preserveNullAndEmptyArrays: true } },
       {
-        $unwind: {
-          path: "$productDetails",
-          preserveNullAndEmptyArrays: true,
+        $lookup: {
+          from: "outlets",
+          localField: "productDetails.outletId", 
+          foreignField: "_id",
+          as: "outletDetails",
         },
       },
+      { $unwind: { path: "$outletDetails", preserveNullAndEmptyArrays: true } },
       {
         $project: {
           _id: 1,
+          productId: "$productDetails._id", 
           "productDetails.name": 1,
           "productDetails.slug": 1,
           "productDetails.price": 1,
@@ -60,26 +67,29 @@ class WishlistModel {
           "productDetails.stock": 1,
           "productDetails.description": 1,
           "productDetails.tags": 1,
+          "outletDetails._id": 1, 
+          "outletDetails.name": 1,
         },
       },
     ];
-
+  
     return await this.collection().aggregate(agg).toArray();
   }
+  
 
   static async findByProductId(productId: string) {
-    const objectId = new ObjectId(productId);
+    const objectId = this.toObjectId(productId);
     return await this.collection().find({ productId: objectId }).toArray();
   }
 
   static async deleteById(id: string) {
-    const objectId = new ObjectId(id);
+    const objectId = this.toObjectId(id);
     return await this.collection().deleteOne({ _id: objectId });
   }
 
   static async deleteByUserAndProduct(userId: string, productId: string) {
-    const userObjectId = new ObjectId(userId);
-    const productObjectId = new ObjectId(productId);
+    const userObjectId = this.toObjectId(userId);
+    const productObjectId = this.toObjectId(productId);
 
     return await this.collection().deleteOne({
       userId: userObjectId,
@@ -91,10 +101,10 @@ class WishlistModel {
     const filter: WishlistFilter = {};
 
     if (query.userId) {
-      filter.userId = new ObjectId(query.userId);  
+      filter.userId = this.toObjectId(query.userId);  
     }
     if (query.productId) {
-      filter.productId = new ObjectId(query.productId);  
+      filter.productId = this.toObjectId(query.productId);  
     }
 
     return await this.collection().deleteOne(filter);
@@ -104,10 +114,10 @@ class WishlistModel {
     const filter: WishlistFilter = {}; 
 
     if (query.userId) {
-      filter.userId = new ObjectId(query.userId);  
+      filter.userId = this.toObjectId(query.userId);  
     }
     if (query.productId) {
-      filter.productId = new ObjectId(query.productId);  
+      filter.productId = this.toObjectId(query.productId);  
     }
 
     return await this.collection().find(filter).toArray();
@@ -117,17 +127,17 @@ class WishlistModel {
     const filter: WishlistFilter = {};
 
     if (query.userId) {
-      filter.userId = new ObjectId(query.userId);  
+      filter.userId = this.toObjectId(query.userId);  
     }
     if (query.productId) {
-      filter.productId = new ObjectId(query.productId);  
+      filter.productId = this.toObjectId(query.productId);  
     }
 
     return await this.collection().findOne(filter);
   }
 
   static async getProductById(productId: string) {
-    const objectId = new ObjectId(productId);
+    const objectId = this.toObjectId(productId);
     console.log('Searching for product with ID:', objectId); 
 
     const product = await database.collection("products").findOne({ _id: objectId });

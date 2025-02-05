@@ -1,5 +1,6 @@
 import WishlistModel from "@/db/models/wishlistModel";
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";  
 
 export async function POST(request: NextRequest) {
   const userId = request.headers.get("x-user-id"); 
@@ -19,9 +20,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
+
+  let objectUserId;
+  try {
+    objectUserId = new ObjectId(userId);  
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Invalid userId format" },
+      { status: 400 }
+    );
+  }
+
   try {
     const existingWishlist = await WishlistModel.findOne({
-      userId,
+      userId: objectUserId,
       productId: body.productId,
     });
 
@@ -33,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     await WishlistModel.create({
-      userId,
+      userId: objectUserId,
       productId: body.productId,
       ...body, 
     });
@@ -51,8 +63,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
+
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get("x-user-id");  
+  const userId = request.headers.get("x-user-id");
 
   if (!userId) {
     return NextResponse.json(
@@ -61,8 +74,19 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  let objectUserId: ObjectId;
+
   try {
-    const wishlistItems = await WishlistModel.find({ userId });
+    objectUserId = new ObjectId(userId); 
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Invalid userId format" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const wishlistItems = await WishlistModel.findByUserId(objectUserId);
 
     if (wishlistItems.length === 0) {
       return NextResponse.json(
@@ -71,8 +95,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const formattedWishlist = wishlistItems.map(item => ({
+      _id: item._id,
+      productId: item.productId, 
+      name: item.productDetails.name,
+      slug: item.productDetails.slug,
+      price: item.productDetails.price,
+      imgUrl: item.productDetails.imgUrl,
+      description: item.productDetails.description,
+      thumbnail: item.productDetails.thumbnail || "", 
+      tags: item.productDetails.tags,
+      stock: item.productDetails.stock,
+      outletId: item.outletDetails._id,
+      outletName: item.outletDetails.name,
+    }));
+
     return NextResponse.json(
-      { wishlist: wishlistItems },
+      { wishlist: formattedWishlist },
       { status: 200 }
     );
   } catch (error) {
@@ -83,6 +122,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 export async function DELETE(request: NextRequest) {
   const userId = request.headers.get("x-user-id");
@@ -102,9 +142,19 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
+  let objectUserId;
+  try {
+    objectUserId = new ObjectId(userId); 
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Invalid userId format" },
+      { status: 400 }
+    );
+  }
+
   try {
     const wishlistItem = await WishlistModel.findOne({
-      userId,
+      userId: objectUserId,
       productId: body.productId,
     });
 
@@ -116,7 +166,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     await WishlistModel.deleteOne({
-      userId,
+      userId: objectUserId,
       productId: body.productId,
     });
 
